@@ -1,722 +1,558 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Green Network - Protect Earth</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        :root {
-            --primary: #2e7d32;
-            --secondary: #4caf50;
-            --accent: #8bc34a;
-            --light: #e8f5e9;
-            --dark: #1b5e20;
-            --text: #333333;
-            --white: #ffffff;
-        }
-
-        body {
-            background-color: var(--light);
-            color: var(--text);
-            line-height: 1.6;
-        }
-
-        header {
-            background: linear-gradient(to right, var(--primary), var(--secondary));
-            color: var(--white);
-            padding: 1rem 0;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .container {
-            width: 90%;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .nav-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 1.8rem;
-            font-weight: 700;
-        }
-
-        .logo i {
-            font-size: 2rem;
-        }
-
-        nav ul {
-            display: flex;
-            list-style: none;
-        }
-
-        nav ul li {
-            margin-left: 2rem;
-        }
-
-        nav ul li a {
-            color: var(--white);
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            padding: 0.5rem 0;
-            position: relative;
-        }
-
-        nav ul li a:hover {
-            color: var(--accent);
-        }
-
-        nav ul li a::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background-color: var(--accent);
-            transition: width 0.3s ease;
-        }
-
-        nav ul li a:hover::after {
-            width: 100%;
-        }
-
-        .hero {
-            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2073&q=80');
-            background-size: cover;
-            background-position: center;
-            height: 80vh;
-            display: flex;
-            align-items: center;
-            text-align: center;
-            color: var(--white);
-        }
-
-        .hero-content {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .hero h1 {
-            font-size: 3.5rem;
-            margin-bottom: 1rem;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-        }
-
-        .hero p {
-            font-size: 1.3rem;
-            margin-bottom: 2rem;
-        }
-
-        .btn {
-            display: inline-block;
-            background-color: var(--accent);
-            color: var(--white);
-            padding: 0.8rem 2rem;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            border: none;
-            cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .btn:hover {
-            background-color: var(--primary);
-            transform: translateY(-3px);
-            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
-        }
-
-        section {
-            padding: 5rem 0;
-        }
-
-        .section-title {
-            text-align: center;
-            margin-bottom: 3rem;
-        }
-
-        .section-title h2 {
-            font-size: 2.5rem;
-            color: var(--primary);
-            margin-bottom: 1rem;
-            position: relative;
-            display: inline-block;
-        }
-
-        .section-title h2::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80px;
-            height: 4px;
-            background-color: var(--accent);
-            border-radius: 2px;
-        }
-
-        .section-title p {
-            color: var(--text);
-            max-width: 700px;
-            margin: 0 auto;
-        }
-
-        .about-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 3rem;
-            align-items: center;
-        }
-
-        .about-img {
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .about-img img {
-            width: 100%;
-            height: auto;
-            display: block;
-            transition: transform 0.5s ease;
-        }
-
-        .about-img:hover img {
-            transform: scale(1.05);
-        }
-
-        .about-text h3 {
-            font-size: 1.8rem;
-            margin-bottom: 1.5rem;
-            color: var(--dark);
-        }
-
-        .about-text p {
-            margin-bottom: 1.5rem;
-        }
-
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 2rem;
-            margin-top: 3rem;
-        }
-
-        .stat-item {
-            text-align: center;
-            padding: 2rem 1rem;
-            background-color: var(--white);
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            transition: transform 0.3s ease;
-        }
-
-        .stat-item:hover {
-            transform: translateY(-10px);
-        }
-
-        .stat-item i {
-            font-size: 2.5rem;
-            color: var(--primary);
-            margin-bottom: 1rem;
-        }
-
-        .stat-item h3 {
-            font-size: 2.5rem;
-            color: var(--dark);
-            margin-bottom: 0.5rem;
-        }
-
-        .stat-item p {
-            color: var(--text);
-        }
-
-        .initiatives {
-            background-color: var(--white);
-        }
-
-        .initiatives-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 2rem;
-        }
-
-        .initiative-card {
-            background-color: var(--light);
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            transition: transform 0.3s ease;
-        }
-
-        .initiative-card:hover {
-            transform: translateY(-10px);
-        }
-
-        .initiative-img {
-            height: 200px;
-            overflow: hidden;
-        }
-
-        .initiative-img img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.5s ease;
-        }
-
-        .initiative-card:hover .initiative-img img {
-            transform: scale(1.1);
-        }
-
-        .initiative-content {
-            padding: 1.5rem;
-        }
-
-        .initiative-content h3 {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            color: var(--dark);
-        }
-
-        .initiative-content p {
-            margin-bottom: 1.5rem;
-        }
-
-        .cta {
-            background: linear-gradient(to right, var(--primary), var(--secondary));
-            color: var(--white);
-            text-align: center;
-            padding: 5rem 0;
-        }
-
-        .cta h2 {
-            font-size: 2.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .cta p {
-            font-size: 1.2rem;
-            margin-bottom: 2rem;
-            max-width: 700px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .cta .btn {
-            background-color: var(--white);
-            color: var(--primary);
-        }
-
-        .cta .btn:hover {
-            background-color: var(--accent);
-            color: var(--white);
-        }
-
-        footer {
-            background-color: var(--dark);
-            color: var(--white);
-            padding: 3rem 0 1rem;
-        }
-
-        .footer-content {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .footer-column h3 {
-            font-size: 1.3rem;
-            margin-bottom: 1.5rem;
-            position: relative;
-            padding-bottom: 10px;
-        }
-
-        .footer-column h3::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 40px;
-            height: 2px;
-            background-color: var(--accent);
-        }
-
-        .footer-column p {
-            margin-bottom: 1rem;
-        }
-
-        .footer-links {
-            list-style: none;
-        }
-
-        .footer-links li {
-            margin-bottom: 0.8rem;
-        }
-
-        .footer-links li a {
-            color: var(--light);
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-
-        .footer-links li a:hover {
-            color: var(--accent);
-            padding-left: 5px;
-        }
-
-        .social-links {
-            display: flex;
-            gap: 1rem;
-        }
-
-        .social-links a {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            color: var(--white);
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-
-        .social-links a:hover {
-            background-color: var(--accent);
-            transform: translateY(-5px);
-        }
-
-        .copyright {
-            text-align: center;
-            padding-top: 2rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .mobile-menu {
-            display: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-
-        @media (max-width: 992px) {
-            .about-content {
-                grid-template-columns: 1fr;
-            }
-            
-            .initiatives-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .footer-content {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .stats {
-                grid-template-columns: repeat(2, 1fr);
+    <title>每日科技新闻 - TechDaily</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/v4-shims.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#36CFC9',
+                        dark: '#1D2939',
+                        light: '#F9FAFB'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                },
             }
         }
-
-        @media (max-width: 768px) {
-            .hero h1 {
-                font-size: 2.5rem;
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
             }
-            
-            .hero p {
-                font-size: 1.1rem;
+            .text-gradient {
+                background: linear-gradient(135deg, #165DFF 0%, #36CFC9 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
             }
-            
-            nav ul {
-                display: none;
-                position: absolute;
-                top: 100%;
-                left: 0;
-                width: 100%;
-                background-color: var(--primary);
-                flex-direction: column;
-                padding: 1rem 0;
-                text-align: center;
-                box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+            .card-hover {
+                transition: all 0.3s ease;
             }
-            
-            nav ul.active {
-                display: flex;
+            .card-hover:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
             }
-            
-            nav ul li {
-                margin: 0;
-                padding: 0.8rem 0;
+            .nav-scroll {
+                transition: background-color 0.3s ease, padding 0.3s ease;
             }
-            
-            .mobile-menu {
-                display: block;
+            .animate-float {
+                animation: float 6s ease-in-out infinite;
             }
-            
-            .initiatives-grid {
-                grid-template-columns: 1fr;
+            @keyframes float {
+                0% { transform: translateY(0px); }
+                50% { transform: translateY(-10px); }
+                100% { transform: translateY(0px); }
             }
-            
-            .footer-content {
-                grid-template-columns: 1fr;
-            }
-            
-            .stats {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Animation for stats counter */
-        .counter {
-            transition: all 0.5s ease;
         }
     </style>
 </head>
-<body>
-    <!-- Header -->
-    <header>
-        <div class="container nav-container">
-            <div class="logo">
-                <i class="fas fa-seedling"></i>
-                <span>Green Network</span>
-            </div>
-            <nav>
-                <div class="mobile-menu">
-                    <i class="fas fa-bars"></i>
+<body class="font-inter bg-light text-dark">
+    <!-- 导航栏 -->
+    <nav id="navbar" class="nav-scroll fixed w-full top-0 z-50 bg-white/95 backdrop-blur-sm shadow-sm">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <div class="w-10 h-10 bg-gradient-to-r from-primary to-secondary rounded-lg flex items-center justify-center">
+                    <i class="fa fa-bolt text-white text-xl"></i>
                 </div>
-                <ul>
-                    <li><a href="#home">Home</a></li>
-                    <li><a href="#about">About</a></li>
-                    <li><a href="#initiatives">Initiatives</a></li>
-                    <li><a href="#get-involved">Get Involved</a></li>
-                    <li><a href="#contact">Contact</a></li>
-                </ul>
-            </nav>
+                <h1 class="text-xl font-bold text-gradient">TechDaily</h1>
+            </div>
+            
+            <!-- 搜索框 -->
+            <div class="hidden md:flex items-center flex-1 max-w-md mx-8">
+                <div class="relative w-full">
+                    <input type="text" placeholder="搜索科技新闻..." 
+                           class="w-full pl-10 pr-4 py-2 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all">
+                    <i class="fa fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                </div>
+            </div>
+            
+            <!-- 导航菜单 -->
+            <div class="flex items-center space-x-6">
+                <a href="#" class="hidden md:block text-dark hover:text-primary transition-colors">首页</a>
+                <a href="#" class="hidden md:block text-gray-600 hover:text-primary transition-colors">AI</a>
+                <a href="#" class="hidden md:block text-gray-600 hover:text-primary transition-colors">区块链</a>
+                <a href="#" class="hidden md:block text-gray-600 hover:text-primary transition-colors">创业</a>
+                <button class="md:hidden text-dark" id="mobile-menu-btn">
+                    <i class="fa fa-bars text-xl"></i>
+                </button>
+            </div>
         </div>
-    </header>
-
-    <!-- Hero Section -->
-    <section class="hero" id="home">
-        <div class="container hero-content">
-            <h1>Protect Our Planet, Preserve Our Future</h1>
-            <p>Join the global movement to create a sustainable world through conservation, education, and community action.</p>
-            <a href="#get-involved" class="btn">Join Our Network</a>
-        </div>
-    </section>
-
-    <!-- About Section -->
-    <section id="about">
-        <div class="container">
-            <div class="section-title">
-                <h2>About Green Network</h2>
-                <p>We are a global community dedicated to environmental protection and sustainable development.</p>
-            </div>
-            <div class="about-content">
-                <div class="about-img">
-                    <img src="https://images.unsplash.com/photo-1507591064344-4c6ce005b128?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" alt="Team planting trees">
+        
+        <!-- 移动端菜单 -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-100">
+            <div class="container mx-auto px-4 py-3 space-y-3">
+                <div class="relative">
+                    <input type="text" placeholder="搜索科技新闻..." 
+                           class="w-full pl-10 pr-4 py-2 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+                    <i class="fa fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                 </div>
-                <div class="about-text">
-                    <h3>Our Mission</h3>
-                    <p>Green Network is committed to creating a sustainable future by protecting natural ecosystems, promoting renewable energy, and empowering communities to take environmental action.</p>
-                    <p>Founded in 2010, we've grown from a small grassroots organization to an international network with over 50,000 members across 120 countries.</p>
-                    <p>Our approach combines scientific research, community engagement, and policy advocacy to address the most pressing environmental challenges of our time.</p>
-                    <a href="#" class="btn">Learn More</a>
-                </div>
-            </div>
-            <div class="stats">
-                <div class="stat-item">
-                    <i class="fas fa-tree"></i>
-                    <h3 class="counter" data-target="2500000">0</h3>
-                    <p>Trees Planted</p>
-                </div>
-                <div class="stat-item">
-                    <i class="fas fa-users"></i>
-                    <h3 class="counter" data-target="50000">0</h3>
-                    <p>Active Members</p>
-                </div>
-                <div class="stat-item">
-                    <i class="fas fa-globe-americas"></i>
-                    <h3 class="counter" data-target="120">0</h3>
-                    <p>Countries Reached</p>
-                </div>
-                <div class="stat-item">
-                    <i class="fas fa-recycle"></i>
-                    <h3 class="counter" data-target="1500">0</h3>
-                    <p>Cleanup Projects</p>
+                <div class="flex space-x-4">
+                    <a href="#" class="text-dark hover:text-primary transition-colors">AI</a>
+                    <a href="#" class="text-gray-600 hover:text-primary transition-colors">区块链</a>
+                    <a href="#" class="text-gray-600 hover:text-primary transition-colors">创业</a>
                 </div>
             </div>
         </div>
-    </section>
+    </nav>
 
-    <!-- Initiatives Section -->
-    <section class="initiatives" id="initiatives">
-        <div class="container">
-            <div class="section-title">
-                <h2>Our Initiatives</h2>
-                <p>Discover the key programs and projects we're implementing to protect our planet.</p>
-            </div>
-            <div class="initiatives-grid">
-                <div class="initiative-card">
-                    <div class="initiative-img">
-                        <img src="https://dialogue.earth/content/uploads/2021/04/lessons-from-the-rush-to-reforest-china-dialogue-2400x1599.jpg" alt="Reforestation">
-                    </div>
-                    <div class="initiative-content">
-                        <h3>Global Reforestation</h3>
-                        <p>Planting millions of trees worldwide to restore ecosystems, combat climate change, and protect biodiversity.</p>
-                        <a href="#" class="btn">Learn More</a>
-                    </div>
+    <!-- 主要内容 -->
+    <main class="container mx-auto px-4 pt-24 pb-16">
+        <!-- 头部横幅 -->
+        <section class="mb-12">
+            <div class="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-2xl p-8 md:p-12 relative overflow-hidden">
+                <div class="absolute inset-0 opacity-20">
+                    <img src="https://doc.doubao.com/s/ROsi6_sVLhY/" alt="科技背景" class="w-full h-full object-cover">
                 </div>
-                <div class="initiative-card">
-                    <div class="initiative-img">
-                        <img src="https://images.unsplash.com/photo-1621451537084-482c73073a0f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80" alt="Ocean Conservation">
-                    </div>
-                    <div class="initiative-content">
-                        <h3>Ocean Conservation</h3>
-                        <p>Protecting marine ecosystems, reducing plastic pollution, and promoting sustainable fishing practices.</p>
-                        <a href="#" class="btn">Learn More</a>
-                    </div>
-                </div>
-                <div class="initiative-card">
-                    <div class="initiative-img">
-                        <img src="https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2072&q=80" alt="Renewable Energy">
-                    </div>
-                    <div class="initiative-content">
-                        <h3>Renewable Energy</h3>
-                        <p>Promoting solar, wind, and other clean energy sources to reduce dependence on fossil fuels.</p>
-                        <a href="#" class="btn">Learn More</a>
+                <div class="relative z-10">
+                    <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-dark mb-4">
+                        最新科技资讯，尽在<span class="text-gradient">TechDaily</span>
+                    </h2>
+                    <p class="text-gray-600 mb-6 max-w-2xl">
+                        每日更新全球前沿科技动态，涵盖人工智能、区块链、云计算、创业投资等领域
+                    </p>
+                    <div class="flex flex-wrap gap-4">
+                        <button class="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-lg transition-all shadow-lg hover:shadow-xl">
+                            <i class="fa fa-newspaper-o mr-2"></i>阅读最新
+                        </button>
+                        <button class="bg-white hover:bg-gray-50 text-primary border border-primary px-6 py-3 rounded-lg transition-all">
+                            <i class="fa fa-bell mr-2"></i>订阅更新
+                        </button>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- CTA Section -->
-    <section class="cta" id="get-involved">
-        <div class="container">
-            <h2>Join Our Global Movement</h2>
-            <p>Together, we can create a sustainable future for generations to come. Every action counts, no matter how small.</p>
-            <a href="#" class="btn">Become a Member</a>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer id="contact">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-column">
-                    <h3>Green Network</h3>
-                    <p>We are dedicated to protecting our planet through collaborative action, education, and sustainable solutions.</p>
-                    <div class="social-links">
-                        <a href="#"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#"><i class="fab fa-twitter"></i></a>
-                        <a href="#"><i class="fab fa-instagram"></i></a>
-                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+        <!-- 热门新闻 -->
+        <section class="mb-12">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold text-dark">
+                    <i class="fa fa-fire text-red-500 mr-2"></i>热门新闻
+                </h3>
+                <a href="#" class="text-primary hover:text-primary/80 transition-colors">查看全部</a>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- 热门新闻卡片 1 -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden card-hover">
+                    <div class="relative h-48">
+                        <img src="https://doc.doubao.com/s/vbNF-Y59HXA/" alt="人工智能" class="w-full h-full object-cover">
+                        <div class="absolute top-3 left-3 bg-primary/90 text-white text-xs px-2 py-1 rounded">
+                            AI
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <h4 class="font-bold text-lg mb-2 hover:text-primary transition-colors cursor-pointer">
+                            人工智能技术突破：最新模型可实现多模态理解
+                        </h4>
+                        <p class="text-gray-600 text-sm mb-3 line-clamp-2">
+                            研究人员开发出新一代AI模型，能够同时理解文本、图像、音频等多种数据类型，在复杂场景中表现优异。
+                        </p>
+                        <div class="flex items-center justify-between text-xs text-gray-500">
+                            <span><i class="fa fa-clock-o mr-1"></i>2小时前</span>
+                            <span><i class="fa fa-eye mr-1"></i>1.2k</span>
+                        </div>
                     </div>
                 </div>
-                <div class="footer-column">
-                    <h3>Quick Links</h3>
-                    <ul class="footer-links">
-                        <li><a href="#home">Home</a></li>
-                        <li><a href="#about">About Us</a></li>
-                        <li><a href="#initiatives">Initiatives</a></li>
-                        <li><a href="#get-involved">Get Involved</a></li>
-                        <li><a href="#contact">Contact</a></li>
+
+                <!-- 热门新闻卡片 2 -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden card-hover">
+                    <div class="relative h-48">
+                        <img src="https://doc.doubao.com/s/wI9A_7t70XE/" alt="芯片技术" class="w-full h-full object-cover">
+                        <div class="absolute top-3 left-3 bg-secondary/90 text-white text-xs px-2 py-1 rounded">
+                            芯片
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <h4 class="font-bold text-lg mb-2 hover:text-primary transition-colors cursor-pointer">
+                            量子计算迎来重大突破，运算速度提升100倍
+                        </h4>
+                        <p class="text-gray-600 text-sm mb-3 line-clamp-2">
+                            科学家成功研发出新型量子处理器，在特定计算任务上的表现远超传统超级计算机，为密码学和材料科学带来新机遇。
+                        </p>
+                        <div class="flex items-center justify-between text-xs text-gray-500">
+                            <span><i class="fa fa-clock-o mr-1"></i>5小时前</span>
+                            <span><i class="fa fa-eye mr-1"></i>892</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 热门新闻卡片 3 -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden card-hover">
+                    <div class="relative h-48">
+                        <img src="https://doc.doubao.com/s/ginCW4c17qU/" alt="数据中心" class="w-full h-full object-cover">
+                        <div class="absolute top-3 left-3 bg-purple-500/90 text-white text-xs px-2 py-1 rounded">
+                            云计算
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <h4 class="font-bold text-lg mb-2 hover:text-primary transition-colors cursor-pointer">
+                            全球最大数据中心建成，可容纳100万台服务器
+                        </h4>
+                        <p class="text-gray-600 text-sm mb-3 line-clamp-2">
+                            某科技巨头宣布完成全球规模最大的数据中心建设，采用最新的绿色能源技术，能耗效率提升40%。
+                        </p>
+                        <div class="flex items-center justify-between text-xs text-gray-500">
+                            <span><i class="fa fa-clock-o mr-1"></i>昨天</span>
+                            <span><i class="fa fa-eye mr-1"></i>2.1k</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 分类新闻 -->
+        <section class="mb-12">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold text-dark">
+                    <i class="fa fa-th-large text-primary mr-2"></i>分类浏览
+                </h3>
+                <div class="flex space-x-2">
+                    <button class="category-btn bg-primary text-white px-4 py-2 rounded-lg text-sm">全部</button>
+                    <button class="category-btn bg-white text-gray-600 hover:bg-gray-100 px-4 py-2 rounded-lg text-sm transition-colors">AI</button>
+                    <button class="category-btn bg-white text-gray-600 hover:bg-gray-100 px-4 py-2 rounded-lg text-sm transition-colors">区块链</button>
+                    <button class="category-btn bg-white text-gray-600 hover:bg-gray-100 px-4 py-2 rounded-lg text-sm transition-colors">创业</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- 新闻列表 -->
+                <div class="space-y-4">
+                    <!-- 新闻项 1 -->
+                    <div class="bg-white rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <div class="flex gap-4">
+                            <div class="w-20 h-20 flex-shrink-0">
+                                <img src="https://doc.doubao.com/s/4Is1KtJNcGQ/" alt="科技设备" class="w-full h-full object-cover rounded">
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-semibold text-dark hover:text-primary transition-colors cursor-pointer mb-1">
+                                    新型可折叠屏幕技术问世，厚度仅0.1毫米
+                                </h4>
+                                <p class="text-gray-600 text-sm line-clamp-2 mb-2">
+                                    韩国科技公司展示了最新研发的可折叠显示技术，具有超高柔韧性和透明度，有望应用于下一代智能手机和可穿戴设备。
+                                </p>
+                                <div class="flex items-center justify-between text-xs text-gray-500">
+                                    <span><i class="fa fa-calendar mr-1"></i>2025-12-04</span>
+                                    <span><i class="fa fa-comment mr-1"></i>32</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 新闻项 2 -->
+                    <div class="bg-white rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <div class="flex gap-4">
+                            <div class="w-20 h-20 flex-shrink-0">
+                                <img src="https://doc.doubao.com/s/gLL1yVBpoBU/" alt="未来科技" class="w-full h-full object-cover rounded">
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-semibold text-dark hover:text-primary transition-colors cursor-pointer mb-1">
+                                    自动驾驶技术取得重大进展，城市道路测试成功率达99.8%
+                                </h4>
+                                <p class="text-gray-600 text-sm line-clamp-2 mb-2">
+                                    多家汽车制造商联合宣布，其自动驾驶系统在复杂城市环境中的测试表现优异，为商业化应用奠定基础。
+                                </p>
+                                <div class="flex items-center justify-between text-xs text-gray-500">
+                                    <span><i class="fa fa-calendar mr-1"></i>2025-12-04</span>
+                                    <span><i class="fa fa-comment mr-1"></i>45</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 新闻项 3 -->
+                    <div class="bg-white rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <div class="flex gap-4">
+                            <div class="w-20 h-20 flex-shrink-0">
+                                <img src="https://doc.doubao.com/s/SBbApho0qtQ/" alt="科技创新" class="w-full h-full object-cover rounded">
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-semibold text-dark hover:text-primary transition-colors cursor-pointer mb-1">
+                                    全球科技投资创历史新高，AI领域吸金超500亿美元
+                                </h4>
+                                <p class="text-gray-600 text-sm line-clamp-2 mb-2">
+                                    最新报告显示，2025年全球科技投资规模达到新高度，人工智能、生物科技和清洁能源成为投资热点。
+                                </p>
+                                <div class="flex items-center justify-between text-xs text-gray-500">
+                                    <span><i class="fa fa-calendar mr-1"></i>2025-12-03</span>
+                                    <span><i class="fa fa-comment mr-1"></i>28</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 侧边栏 -->
+                <div class="space-y-6">
+                    <!-- 订阅卡片 -->
+                    <div class="bg-gradient-to-br from-primary to-secondary rounded-xl p-6 text-white">
+                        <h4 class="font-bold text-lg mb-3">
+                            <i class="fa fa-envelope mr-2"></i>订阅每日科技简报
+                        </h4>
+                        <p class="text-white/80 text-sm mb-4">
+                            每天获取精选科技新闻，不错过任何重要资讯
+                        </p>
+                        <div class="space-y-3">
+                            <input type="email" placeholder="输入您的邮箱" 
+                                   class="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 placeholder-white/60 text-white focus:outline-none focus:ring-2 focus:ring-white/50">
+                            <button class="w-full bg-white text-primary font-medium py-2 rounded-lg hover:bg-white/90 transition-colors">
+                                立即订阅
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 热门标签 -->
+                    <div class="bg-white rounded-xl p-5 shadow-sm">
+                        <h4 class="font-bold text-dark mb-4">热门标签</h4>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-primary/20 transition-colors">#人工智能</span>
+                            <span class="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-gray-200 transition-colors">#区块链</span>
+                            <span class="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-gray-200 transition-colors">#元宇宙</span>
+                            <span class="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-gray-200 transition-colors">#量子计算</span>
+                            <span class="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-gray-200 transition-colors">#自动驾驶</span>
+                            <span class="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-gray-200 transition-colors">#清洁能源</span>
+                        </div>
+                    </div>
+
+                    <!-- 阅读统计 -->
+                    <div class="bg-white rounded-xl p-5 shadow-sm">
+                        <h4 class="font-bold text-dark mb-4">
+                            <i class="fa fa-bar-chart text-primary mr-2"></i>阅读趋势
+                        </h4>
+                        <div class="space-y-3">
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-gray-600">人工智能</span>
+                                    <span class="font-medium">85%</span>
+                                </div>
+                                <div class="w-full bg-gray-100 rounded-full h-2">
+                                    <div class="bg-primary h-2 rounded-full" style="width: 85%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-gray-600">区块链</span>
+                                    <span class="font-medium">62%</span>
+                                </div>
+                                <div class="w-full bg-gray-100 rounded-full h-2">
+                                    <div class="bg-secondary h-2 rounded-full" style="width: 62%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-gray-600">创业投资</span>
+                                    <span class="font-medium">48%</span>
+                                </div>
+                                <div class="w-full bg-gray-100 rounded-full h-2">
+                                    <div class="bg-purple-500 h-2 rounded-full" style="width: 48%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 加载更多 -->
+        <section class="text-center">
+            <button id="load-more" class="bg-white border border-gray-200 text-gray-600 px-6 py-3 rounded-lg hover:bg-gray-50 transition-colors">
+                <i class="fa fa-refresh mr-2"></i>加载更多新闻
+            </button>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-dark text-white pt-12 pb-6">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <div class="w-10 h-10 bg-gradient-to-r from-primary to-secondary rounded-lg flex items-center justify-center">
+                            <i class="fa fa-bolt text-white text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold">TechDaily</h3>
+                    </div>
+                    <p class="text-gray-400 text-sm mb-4">
+                        每日科技新闻，为您带来全球最新的科技资讯和深度分析
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fa fa-twitter text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fa fa-facebook text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fa fa-linkedin text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fa fa-instagram text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="font-bold mb-4">分类导航</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white transition-colors">人工智能</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">区块链</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">云计算</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">创业投资</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">科技产品</a></li>
                     </ul>
                 </div>
-                <div class="footer-column">
-                    <h3>Our Programs</h3>
-                    <ul class="footer-links">
-                        <li><a href="#">Reforestation</a></li>
-                        <li><a href="#">Ocean Cleanup</a></li>
-                        <li><a href="#">Wildlife Protection</a></li>
-                        <li><a href="#">Climate Education</a></li>
-                        <li><a href="#">Sustainable Agriculture</a></li>
+
+                <div>
+                    <h4 class="font-bold mb-4">关于我们</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white transition-colors">公司简介</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">联系方式</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">加入我们</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">广告合作</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">隐私政策</a></li>
                     </ul>
                 </div>
-                <div class="footer-column">
-                    <h3>Contact Us</h3>
-                    <p><i class="fas fa-map-marker-alt"></i> Copper Creek Drive, New York</p>
-                    <p><i class="fas fa-phone"></i> +1 (312) 171-0771</p>
-                    <p><i class="fas fa-envelope"></i> support@greennetwork.org</p>
+
+                <div>
+                    <h4 class="font-bold mb-4">联系我们</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li class="flex items-center">
+                            <i class="fa fa-envelope mr-2"></i>
+                            <span>contact@techdaily.com</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-phone mr-2"></i>
+                            <span>+86 123 4567 8910</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-map-marker mr-2"></i>
+                            <span>北京市海淀区科技园区</span>
+                        </li>
+                    </ul>
                 </div>
             </div>
-            <div class="copyright">
-                <p>&copy; 2025 Green Network. All rights reserved.</p>
+
+            <div class="border-t border-gray-800 pt-6 text-center text-gray-500 text-sm">
+                <p>&copy; 2025 TechDaily. 保留所有权利。</p>
             </div>
         </div>
     </footer>
 
+    <!-- 返回顶部按钮 -->
+    <button id="back-to-top" class="fixed bottom-6 right-6 bg-primary/90 text-white w-12 h-12 rounded-full shadow-lg hover:bg-primary transition-all opacity-0 invisible">
+        <i class="fa fa-arrow-up"></i>
+    </button>
+
     <script>
-        // Mobile Menu Toggle
-        document.querySelector('.mobile-menu').addEventListener('click', function() {
-            document.querySelector('nav ul').classList.toggle('active');
+        // 移动端菜单切换
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
         });
 
-        // Counter Animation
-        function animateCounters() {
-            const counters = document.querySelectorAll('.counter');
-            const speed = 200; // The lower the slower
+        // 导航栏滚动效果
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('py-2', 'shadow');
+                navbar.classList.remove('py-3');
+            } else {
+                navbar.classList.add('py-3');
+                navbar.classList.remove('py-2', 'shadow');
+            }
+        });
+
+        // 分类按钮切换
+        const categoryBtns = document.querySelectorAll('.category-btn');
+        categoryBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                categoryBtns.forEach(b => {
+                    b.classList.remove('bg-primary', 'text-white');
+                    b.classList.add('bg-white', 'text-gray-600', 'hover:bg-gray-100');
+                });
+                btn.classList.remove('bg-white', 'text-gray-600', 'hover:bg-gray-100');
+                btn.classList.add('bg-primary', 'text-white');
+            });
+        });
+
+        // 返回顶部按钮
+        const backToTopBtn = document.getElementById('back-to-top');
+        
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                backToTopBtn.classList.remove('opacity-0', 'invisible');
+                backToTopBtn.classList.add('opacity-100', 'visible');
+            } else {
+                backToTopBtn.classList.add('opacity-0', 'invisible');
+                backToTopBtn.classList.remove('opacity-100', 'visible');
+            }
+        });
+
+        backToTopBtn.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        // 加载更多按钮
+        const loadMoreBtn = document.getElementById('load-more');
+        loadMoreBtn.addEventListener('click', () => {
+            loadMoreBtn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>加载中...';
+            loadMoreBtn.disabled = true;
             
-            counters.forEach(counter => {
-                const target = +counter.getAttribute('data-target');
-                const count = +counter.innerText;
-                
-                const inc = target / speed;
-                
-                if(count < target) {
-                    counter.innerText = Math.ceil(count + inc);
-                    setTimeout(animateCounters, 1);
-                } else {
-                    counter.innerText = target;
+            // 模拟加载延迟
+            setTimeout(() => {
+                loadMoreBtn.innerHTML = '<i class="fa fa-refresh mr-2"></i>加载更多新闻';
+                loadMoreBtn.disabled = false;
+                alert('已加载全部新闻');
+            }, 1500);
+        });
+
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
                 }
             });
-        }
+        });
 
-        // Initialize counters when page loads
-        window.addEventListener('load', animateCounters);
+        // 图片懒加载
+        document.addEventListener("DOMContentLoaded", function() {
+            const lazyImages = document.querySelectorAll("img");
+            const imageObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        img.classList.add('opacity-100');
+                        img.classList.remove('opacity-0');
+                        observer.unobserve(img);
+                    }
+                });
+            });
 
-        // Smooth scrolling for navigation links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                e.preventDefault();
-                
-                const targetId = this.getAttribute('href');
-                if(targetId === '#') return;
-                
-                const targetElement = document.querySelector(targetId);
-                if(targetElement) {
-                    window.scrollTo({
-                        top: targetElement.offsetTop - 80,
-                        behavior: 'smooth'
-                    });
-                    
-                    document.querySelector('nav ul').classList.remove('active');
-                }
+            lazyImages.forEach(img => {
+                img.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                imageObserver.observe(img);
             });
         });
     </script>
 </body>
-
 </html>
