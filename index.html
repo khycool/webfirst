@@ -3,633 +3,833 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>服务器厂商资质竞争分析工具</title>
+    <title>赛博朋克俄罗斯方块</title>
     <style>
-        :root {
-            --primary: #2c3e50;
-            --secondary: #3498db;
-            --light: #ecf0f1;
-            --success: #2ecc71;
-            --danger: #e74c3c;
-            --warning: #f39c12;
-            --dark: #34495e;
-        }
-        
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            box-sizing: border-box;
+            font-family: 'Courier New', 'Segoe UI', monospace;
         }
         
         body {
-            background-color: #f5f7fa;
-            color: var(--primary);
-            line-height: 1.6;
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3a 100%);
+            color: #00f3ff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             padding: 20px;
+            overflow-x: hidden;
         }
         
         .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
             max-width: 1200px;
-            margin: 0 auto;
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-            padding: 25px;
+            width: 100%;
+            margin-top: 20px;
         }
         
-        header {
+        .header {
             text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid var(--light);
+            margin-bottom: 20px;
+            padding: 20px;
+            width: 100%;
         }
         
         h1 {
-            color: var(--primary);
+            font-size: 3.5rem;
+            text-transform: uppercase;
+            letter-spacing: 4px;
             margin-bottom: 10px;
+            text-shadow: 0 0 10px #00f3ff, 0 0 20px #00f3ff;
+            background: linear-gradient(90deg, #00f3ff, #ff00ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: glow 2s ease-in-out infinite alternate;
         }
         
-        .description {
-            color: var(--dark);
-            font-size: 1.1rem;
+        @keyframes glow {
+            from { filter: drop-shadow(0 0 5px #00f3ff); }
+            to { filter: drop-shadow(0 0 20px #ff00ff); }
         }
         
-        .tool-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 25px;
-        }
-        
-        @media (max-width: 900px) {
-            .tool-container {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        .card {
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-        
-        .card h2 {
-            color: var(--secondary);
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid var(--light);
-        }
-        
-        .form-group {
-            margin-bottom: 15px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-        }
-        
-        select, input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 1rem;
-        }
-        
-        button {
-            background-color: var(--secondary);
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            transition: background-color 0.3s;
-            width: 100%;
-        }
-        
-        button:hover {
-            background-color: #2980b9;
-        }
-        
-        .vendor-tags {
+        .game-area {
             display: flex;
-            flex-wrap: wrap;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .game-board {
+            border: 3px solid #00f3ff;
+            border-radius: 5px;
+            box-shadow: 0 0 15px #00f3ff, inset 0 0 10px rgba(0, 243, 255, 0.3);
+            background-color: rgba(0, 10, 20, 0.8);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .game-board::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                linear-gradient(90deg, transparent 50%, rgba(0, 243, 255, 0.05) 50%),
+                linear-gradient(transparent 50%, rgba(0, 243, 255, 0.05) 50%);
+            background-size: 30px 30px;
+            pointer-events: none;
+        }
+        
+        #game-canvas {
+            display: block;
+            background-color: transparent;
+            z-index: 1;
+            position: relative;
+        }
+        
+        .side-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            min-width: 280px;
+        }
+        
+        .panel {
+            background: rgba(10, 15, 30, 0.8);
+            border: 2px solid #ff00ff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px #ff00ff, inset 0 0 5px rgba(255, 0, 255, 0.3);
+        }
+        
+        .panel h2 {
+            color: #ff00ff;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-bottom: 1px solid #ff00ff;
+            padding-bottom: 8px;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 12px 0;
+            font-size: 1.2rem;
+        }
+        
+        .info-value {
+            color: #00ff9d;
+            font-weight: bold;
+            text-shadow: 0 0 5px #00ff9d;
+        }
+        
+        .next-piece-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        
+        #next-piece-canvas {
+            border: 2px solid #00f3ff;
+            border-radius: 5px;
+            background-color: rgba(0, 20, 40, 0.9);
+        }
+        
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
             gap: 10px;
             margin-top: 10px;
         }
         
-        .vendor-tag {
-            background-color: var(--light);
-            padding: 5px 10px;
-            border-radius: 20px;
+        .control-key {
+            background: rgba(0, 243, 255, 0.1);
+            border: 1px solid #00f3ff;
+            border-radius: 5px;
+            padding: 8px;
+            text-align: center;
             font-size: 0.9rem;
+            color: #00f3ff;
         }
         
-        .results {
-            margin-top: 20px;
-        }
-        
-        .result-item {
-            padding: 12px;
-            border-left: 4px solid var(--secondary);
-            background-color: #f8f9fa;
-            margin-bottom: 10px;
-            border-radius: 0 4px 4px 0;
-        }
-        
-        .result-score {
+        .control-key span {
+            display: block;
             font-weight: bold;
-            color: var(--success);
-            margin-top: 5px;
+            color: #ff00ff;
+            font-size: 1.1rem;
         }
         
-        .vendor-score {
+        .buttons {
             display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
-        }
-        
-        .vendor-name {
-            font-weight: 600;
-        }
-        
-        .score-bar {
-            height: 10px;
-            background-color: var(--light);
-            border-radius: 5px;
-            margin: 10px 0;
-            overflow: hidden;
-        }
-        
-        .score-fill {
-            height: 100%;
-            background-color: var(--success);
-            border-radius: 5px;
-        }
-        
-        .qualification-list {
-            max-height: 300px;
-            overflow-y: auto;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 10px;
-        }
-        
-        .qualification-item {
-            padding: 10px;
-            border-bottom: 1px solid #eee;
-            cursor: pointer;
-        }
-        
-        .qualification-item:hover {
-            background-color: #f0f8ff;
-        }
-        
-        .qualification-item:last-child {
-            border-bottom: none;
-        }
-        
-        .highlight {
-            background-color: #fffacd;
-        }
-        
-        .comparison-table {
-            width: 100%;
-            border-collapse: collapse;
+            flex-direction: column;
+            gap: 15px;
             margin-top: 20px;
         }
         
-        .comparison-table th, .comparison-table td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        
-        .comparison-table th {
-            background-color: var(--primary);
-            color: white;
-        }
-        
-        .comparison-table tr:nth-child(even) {
-            background-color: #f8f9fa;
-        }
-        
-        .has-cert {
-            color: var(--success);
+        .btn {
+            padding: 15px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2rem;
             font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
         }
         
-        .no-cert {
-            color: var(--danger);
+        .btn-start {
+            background: linear-gradient(45deg, #00f3ff, #0066ff);
+            color: #0a0a1a;
+            box-shadow: 0 0 10px #00f3ff;
         }
         
-        .level-info {
-            font-size: 0.8rem;
-            color: var(--dark);
+        .btn-pause {
+            background: linear-gradient(45deg, #ff00ff, #cc00ff);
+            color: #0a0a1a;
+            box-shadow: 0 0 10px #ff00ff;
+        }
+        
+        .btn-reset {
+            background: linear-gradient(45deg, #00ff9d, #00cc66);
+            color: #0a0a1a;
+            box-shadow: 0 0 10px #00ff9d;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 20px currentColor;
+        }
+        
+        .instructions {
+            margin-top: 30px;
+            text-align: center;
+            color: #a0a0ff;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            max-width: 800px;
+        }
+        
+        .game-status {
+            font-size: 1.5rem;
+            color: #ff5555;
+            text-align: center;
+            margin: 15px 0;
+            min-height: 30px;
+            text-shadow: 0 0 10px #ff5555;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            color: #6666ff;
+            font-size: 0.9rem;
+            padding: 20px;
+            border-top: 1px solid #333366;
+            width: 100%;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .side-panel {
+                width: 100%;
+                max-width: 500px;
+            }
+            
+            h1 {
+                font-size: 2.5rem;
+            }
         }
     </style>
 </head>
 <body>
+    <div class="header">
+        <h1>赛博朋克俄罗斯方块</h1>
+        <div class="game-status" id="game-status">准备开始</div>
+    </div>
+    
     <div class="container">
-        <header>
-            <h1>服务器厂商资质竞争分析工具</h1>
-            <p class="description">基于资质竞争分析表，帮助您选择最优资质组合，提高投标得分</p>
-        </header>
+        <div class="game-area">
+            <canvas id="game-canvas" width="300" height="600"></canvas>
+        </div>
         
-        <div class="tool-container">
-            <div class="card">
-                <h2>资质组合优化器</h2>
-                <div class="form-group">
-                    <label for="myVendor">选择我方厂商</label>
-                    <select id="myVendor">
-                        <option value="联想">联想</option>
-                        <option value="超聚变">超聚变</option>
-                        <option value="浪潮">浪潮</option>
-                        <option value="新华三">新华三</option>
-                        <option value="戴尔">戴尔</option>
-                        <option value="宝德">宝德</option>
-                    </select>
+        <div class="side-panel">
+            <div class="panel">
+                <h2>游戏信息</h2>
+                <div class="info-item">
+                    <span>分数:</span>
+                    <span class="info-value" id="score">0</span>
                 </div>
-                
-                <div class="form-group">
-                    <label for="competitors">选择竞争对手（可多选）</label>
-                    <select id="competitors" multiple>
-                        <option value="联想">联想</option>
-                        <option value="超聚变" selected>超聚变</option>
-                        <option value="浪潮" selected>浪潮</option>
-                        <option value="新华三">新华三</option>
-                        <option value="戴尔" selected>戴尔</option>
-                        <option value="宝德">宝德</option>
-                    </select>
-                    <div class="vendor-tags" id="selectedCompetitors">
-                        <div class="vendor-tag">超聚变</div>
-                        <div class="vendor-tag">浪潮</div>
-                        <div class="vendor-tag">戴尔</div>
-                    </div>
+                <div class="info-item">
+                    <span>等级:</span>
+                    <span class="info-value" id="level">1</span>
                 </div>
-                
-                <div class="form-group">
-                    <label for="qualificationCount">选择资质数量</label>
-                    <input type="number" id="qualificationCount" min="1" max="20" value="10">
+                <div class="info-item">
+                    <span>行数:</span>
+                    <span class="info-value" id="lines">0</span>
                 </div>
-                
-                <button id="analyzeBtn">分析最优资质组合</button>
-                
-                <div class="results" id="optimizationResults">
-                    <!-- 结果将在这里显示 -->
+                <div class="info-item">
+                    <span>下一个:</span>
+                </div>
+                <div class="next-piece-container">
+                    <canvas id="next-piece-canvas" width="120" height="120"></canvas>
                 </div>
             </div>
             
-            <div class="card">
-                <h2>资质查询器</h2>
-                <div class="form-group">
-                    <label for="searchQualification">查询资质</label>
-                    <input type="text" id="searchQualification" placeholder="输入资质名称或关键词">
-                    <button id="searchBtn">查询</button>
-                </div>
-                
-                <div class="qualification-list" id="qualificationList">
-                    <!-- 资质列表将在这里显示 -->
-                </div>
-                
-                <div class="results" id="searchResults">
-                    <!-- 查询结果将在这里显示 -->
-                </div>
-            </div>
-        </div>
-        
-        <div class="card">
-            <h2>资质对比表</h2>
-            <div class="form-group">
-                <label for="comparisonVendors">选择要对比的厂商</label>
-                <select id="comparisonVendors" multiple>
-                    <option value="联想" selected>联想</option>
-                    <option value="超聚变" selected>超聚变</option>
-                    <option value="浪潮" selected>浪潮</option>
-                    <option value="新华三">新华三</option>
-                    <option value="戴尔" selected>戴尔</option>
-                    <option value="宝德">宝德</option>
-                </select>
-                <div class="vendor-tags" id="selectedComparisonVendors">
-                    <div class="vendor-tag">联想</div>
-                    <div class="vendor-tag">超聚变</div>
-                    <div class="vendor-tag">浪潮</div>
-                    <div class="vendor-tag">戴尔</div>
+            <div class="panel">
+                <h2>控制说明</h2>
+                <div class="controls">
+                    <div class="control-key">左移<br><span>←</span></div>
+                    <div class="control-key">旋转<br><span>↑</span></div>
+                    <div class="control-key">右移<br><span>→</span></div>
+                    <div class="control-key">加速<br><span>↓</span></div>
+                    <div class="control-key">暂停<br><span>P</span></div>
+                    <div class="control-key">重置<br><span>R</span></div>
                 </div>
             </div>
             
-            <table class="comparison-table" id="comparisonTable">
-                <!-- 对比表格将在这里显示 -->
-            </table>
+            <div class="panel">
+                <h2>游戏控制</h2>
+                <div class="buttons">
+                    <button class="btn btn-start" id="start-btn">开始游戏</button>
+                    <button class="btn btn-pause" id="pause-btn">暂停/继续</button>
+                    <button class="btn btn-reset" id="reset-btn">重新开始</button>
+                </div>
+            </div>
         </div>
+    </div>
+    
+    <div class="instructions">
+        <p>传统俄罗斯方块规则 | 消除行数获得分数 | 等级提高速度加快 | 游戏结束无法放置新方块</p>
+    </div>
+    
+    <div class="footer">
+        赛博朋克风格俄罗斯方块 | 使用方向键控制 | 空格键快速下落
     </div>
 
     <script>
-        // 资质数据 - 从提供的表格中提取
-        const qualifications = [
-            { id: 1, name: "高新技术企业认定", vendors: { "联想": false, "超聚变": true, "浪潮": true, "新华三": true, "戴尔": true, "宝德": true }, level: "" },
-            { id: 2, name: "质量管理体系认证", vendors: { "联想": true, "超聚变": true, "浪潮": true, "新华三": true, "戴尔": true, "宝德": true }, level: "" },
-            { id: 3, name: "环境管理体系认证", vendors: { "联想": true, "超聚变": true, "浪潮": true, "新华三": true, "戴尔": true, "宝德": true }, level: "" },
-            { id: 4, name: "中国职业健康安全管理体系认证", vendors: { "联想": true, "超聚变": true, "浪潮": true, "新华三": true, "戴尔": true, "宝德": true }, level: "" },
-            { id: 5, name: "信息安全管理体系认证", vendors: { "联想": true, "超聚变": true, "浪潮": true, "新华三": true, "戴尔": false, "宝德": true }, level: "" },
-            { id: 6, name: "信息技术服务管理体系认证", vendors: { "联想": true, "超聚变": true, "浪潮": true, "新华三": true, "戴尔": true, "宝德": true }, level: "" },
-            { id: 7, name: "能源管理体系认证", vendors: { "联想": true, "超聚变": true, "浪潮": true, "新华三": true, "戴尔": false, "宝德": true }, level: "" },
-            { id: 8, name: "企业知识产权管理体系认证", vendors: { "联想": true, "超聚变": true, "浪潮": true, "新华三": true, "戴尔": false, "宝德": true }, level: "" },
-            { id: 9, name: "静电防护标准认证", vendors: { "联想": true, "超聚变": true, "浪潮": true, "新华三": true, "戴尔": false, "宝德": false }, level: "" },
-            { id: 10, name: "供应链安全管理体系认证", vendors: { "联想": true, "超聚变": true, "浪潮": true, "新华三": true, "戴尔": false, "宝德": true }, level: "" },
-            { id: 11, name: "企业社会责任管理体系认证", vendors: { "联想": false, "超聚变": true, "浪潮": true, "新华三": true, "戴尔": false, "宝德": true }, level: "" },
-            { id: 12, name: "业务连续性管理体系认证", vendors: { "联想": true, "超聚变": true, "浪潮": true, "新华三": true, "戴尔": false, "宝德": true }, level: "" },
-            { id: 13, name: "反贿赂管理体系认证", vendors: { "联想": false, "超聚变": true, "浪潮": false, "新华三": false, "戴尔": false, "宝德": false }, level: "" },
-            { id: 14, name: "培训管理体系认证", vendors: { "联想": false, "超聚变": true, "浪潮": false, "新华三": false, "戴尔": false, "宝德": false }, level: "" },
-            { id: 15, name: "企业诚信管理体系认证", vendors: { "联想": false, "超聚变": true, "浪潮": false, "新华三": false, "戴尔": false, "宝德": false }, level: "" },
-            { id: 16, name: "数据治理管理体系认证", vendors: { "联想": false, "超聚变": true, "浪潮": true, "新华三": true, "戴尔": false, "宝德": true }, level: "" },
-            { id: 17, name: "隐私信息管理体系认证", vendors: { "联想": true, "超聚变": true, "浪潮": true, "新华三": true, "戴尔": false, "宝德": true }, level: "" },
-            { id: 18, name: "应急预案管理能力评价认证", vendors: { "联想": false, "超聚变": false, "浪潮": false, "新华三": true, "戴尔": false, "宝德": false }, level: "" },
-            { id: 19, name: "云服务信息安全管理体系认证", vendors: { "联想": false, "超聚变": false, "浪潮": false, "新华三": true, "戴尔": false, "宝德": false }, level: "" },
-            { id: 20, name: "个人信息安全管理体系认证", vendors: { "联想": false, "超聚变": false, "浪潮": false, "新华三": true, "戴尔": false, "宝德": false }, level: "" },
-            { id: 21, name: "个人身份信息保护管理体系认证", vendors: { "联想": false, "超聚变": false, "浪潮": false, "新华三": true, "戴尔": false, "宝德": false }, level: "" },
-            { id: 22, name: "合规管理体系认证", vendors: { "联想": false, "超聚变": false, "浪潮": false, "新华三": false, "戴尔": false, "宝德": true }, level: "" },
-            { id: 23, name: "商品售后服务评价体系", vendors: { "联想": "五星级", "超聚变": "五星级", "浪潮": "五星级", "新华三": "五星级", "戴尔": false, "宝德": "五星级" }, level: "达标、三星、四星、五星" },
-            { id: 24, name: "售后服务体系完善程度认证证书", vendors: { "联想": "七星级", "超聚变": "七星级", "浪潮": "七星级", "新华三": "七星级", "戴尔": false, "宝德": "七星级" }, level: "七星、八星、九星" },
-            { id: 25, name: "信息安全服务资质认证", vendors: { "联想": false, "超聚变": true, "浪潮": false, "新华三": true, "戴尔": false, "宝德": false }, level: "" },
-            { id: 26, name: "CCCS客户联络中心标准体系认证证书", vendors: { "联想": "五星级", "超聚变": false, "浪潮": "五星级", "新华三": false, "戴尔": false, "宝德": false }, level: "四星、五星" },
-            { id: 27, name: "ITSS信息技术服务标准符合性证书-运行维护", vendors: { "联想": "三级", "超聚变": "二级", "浪潮": "三级", "新华三": "二级", "戴尔": false, "宝德": false }, level: "四、三、二、一" },
-            { id: 28, name: "ITSS信息技术服务标准符合性证书-数据中心", vendors: { "联想": false, "超聚变": "二级", "浪潮": false, "新华三": false, "戴尔": false, "宝德": false }, level: "四、三、二、一" },
-            { id: 29, name: "国家信息安全测评信息安全服务资质证书", vendors: { "联想": false, "超聚变": false, "浪潮": false, "新华三": true, "戴尔": false, "宝德": false }, level: "一、二、三、四、五" },
-            { id: 30, name: "IT产品信息安全认证证书", vendors: { "联想": true, "超聚变": true, "浪潮": true, "新华三": true, "戴尔": false, "宝德": true }, level: "" },
-            { id: 31, name: "可信安全供应链产品能力检测证书", vendors: { "联想": false, "超聚变": true, "浪潮": false, "新华三": false, "戴尔": false, "宝德": false }, level: "" },
-            { id: 32, name: "CMMI（软件能力成熟度模型集成）", vendors: { "联想": false, "超聚变": "5", "浪潮": "3", "新华三": "5", "戴尔": false, "宝德": false }, level: "一、二、三、四、五" },
-            { id: 33, name: "国家级工业设计中心", vendors: { "联想": false, "超聚变": false, "浪潮": true, "新华三": false, "戴尔": false, "宝德": false }, level: "" },
-            { id: 34, name: "国家企业技术中心", vendors: { "联想": false, "超聚变": false, "浪潮": false, "新华三": true, "戴尔": false, "宝德": false }, level: "" },
-            { id: 35, name: "温室气体排放和清除的量化和报告的规范及指南认证", vendors: { "联想": true, "超聚变": false, "浪潮": false, "新华三": false, "戴尔": false, "宝德": true }, level: "" },
-            { id: 36, name: "国家绿色数据中心先进实用技术产品", vendors: { "联想": true, "超聚变": false, "浪潮": false, "新华三": false, "戴尔": false, "宝德": false }, level: "" },
-            { id: 37, name: "中国人工智能产业发展联盟人工智能关键技术和应用评测重点实验室-大模型计算资源调度平台技术要求核心编写单位", vendors: { "联想": true, "超聚变": false, "浪潮": false, "新华三": false, "戴尔": false, "宝德": false }, level: "" },
-            { id: 38, name: "人工智能管理体系", vendors: { "联想": true, "超聚变": false, "浪潮": false, "新华三": false, "戴尔": false, "宝德": false }, level: "" },
-            { id: 39, name: "创新管理体系认证", vendors: { "联想": true, "超聚变": false, "浪潮": false, "新华三": false, "戴尔": false, "宝德": false }, level: "" }
+        // 游戏常量
+        const COLS = 10;
+        const ROWS = 20;
+        const BLOCK_SIZE = 30;
+        const COLORS = [
+            null,
+            '#00F3FF', // I - 青色
+            '#0066FF', // J - 蓝色
+            '#FF6600', // L - 橙色
+            '#FFFF00', // O - 黄色
+            '#00FF66', // S - 绿色
+            '#9900FF', // T - 紫色
+            '#FF0066'  // Z - 红色
         ];
-
-        // 初始化资质列表
-        function initializeQualificationList() {
-            const listContainer = document.getElementById('qualificationList');
-            listContainer.innerHTML = '';
-            
-            qualifications.forEach(qual => {
-                const item = document.createElement('div');
-                item.className = 'qualification-item';
-                item.textContent = qual.name;
-                item.addEventListener('click', () => {
-                    searchQualification(qual.name);
-                });
-                listContainer.appendChild(item);
-            });
-        }
-
-        // 搜索资质
-        function searchQualification(query) {
-            const resultsContainer = document.getElementById('searchResults');
-            resultsContainer.innerHTML = '';
-            
-            const searchTerm = query.toLowerCase();
-            const matchingQuals = qualifications.filter(qual => 
-                qual.name.toLowerCase().includes(searchTerm)
-            );
-            
-            if (matchingQuals.length === 0) {
-                resultsContainer.innerHTML = '<div class="result-item">未找到匹配的资质</div>';
-                return;
+        
+        // 方块形状定义
+        const SHAPES = [
+            null,
+            [
+                [0,0,0,0],
+                [1,1,1,1],
+                [0,0,0,0],
+                [0,0,0,0]
+            ], // I
+            [
+                [2,0,0],
+                [2,2,2],
+                [0,0,0]
+            ], // J
+            [
+                [0,0,3],
+                [3,3,3],
+                [0,0,0]
+            ], // L
+            [
+                [4,4],
+                [4,4]
+            ], // O
+            [
+                [0,5,5],
+                [5,5,0],
+                [0,0,0]
+            ], // S
+            [
+                [0,6,0],
+                [6,6,6],
+                [0,0,0]
+            ], // T
+            [
+                [7,7,0],
+                [0,7,7],
+                [0,0,0]
+            ]  // Z
+        ];
+        
+        // 游戏状态
+        let canvas, ctx, nextCanvas, nextCtx;
+        let board = [];
+        let score = 0;
+        let level = 1;
+        let lines = 0;
+        let gameOver = false;
+        let isPaused = false;
+        let dropCounter = 0;
+        let dropInterval = 1000; // 初始下落间隔(毫秒)
+        let lastTime = 0;
+        
+        // 当前方块和下一个方块
+        let player = {
+            pos: {x: 0, y: 0},
+            matrix: null,
+            score: 0
+        };
+        
+        let nextPiece = null;
+        
+        // 初始化游戏板
+        function createMatrix(w, h) {
+            const matrix = [];
+            while (h--) {
+                matrix.push(new Array(w).fill(0));
             }
-            
-            matchingQuals.forEach(qual => {
-                const resultItem = document.createElement('div');
-                resultItem.className = 'result-item';
-                
-                let vendorsWithCert = [];
-                let vendorsWithoutCert = [];
-                
-                for (const vendor in qual.vendors) {
-                    if (qual.vendors[vendor]) {
-                        vendorsWithCert.push(vendor);
-                    } else {
-                        vendorsWithoutCert.push(vendor);
-                    }
-                }
-                
-                resultItem.innerHTML = `
-                    <h3>${qual.name}</h3>
-                    <div><strong>拥有此资质的厂商:</strong> ${vendorsWithCert.join(', ')}</div>
-                    <div><strong>无此资质的厂商:</strong> ${vendorsWithoutCert.join(', ')}</div>
-                    ${qual.level ? `<div class="level-info"><strong>级别说明:</strong> ${qual.level}</div>` : ''}
-                `;
-                
-                resultsContainer.appendChild(resultItem);
-            });
+            return matrix;
         }
-
-        // 分析最优资质组合
-        function analyzeOptimalQualifications() {
-            const myVendor = document.getElementById('myVendor').value;
-            const competitors = Array.from(document.getElementById('competitors').selectedOptions).map(opt => opt.value);
-            const qualificationCount = parseInt(document.getElementById('qualificationCount').value);
+        
+        // 创建随机方块
+        function createPiece(type) {
+            const pieceType = type || Math.floor(Math.random() * 7) + 1;
+            return {
+                matrix: SHAPES[pieceType],
+                type: pieceType
+            };
+        }
+        
+        // 绘制单个方块
+        function drawBlock(ctx, x, y, color) {
+            const blockSize = BLOCK_SIZE;
             
-            // 计算每个资质的得分潜力
-            const qualificationScores = qualifications.map(qual => {
-                let score = 0;
-                
-                // 我方有此资质
-                if (qual.vendors[myVendor]) {
-                    // 每个竞争对手没有此资质，得1分
-                    competitors.forEach(competitor => {
-                        if (!qual.vendors[competitor]) {
-                            score += 1;
+            // 方块主体
+            ctx.fillStyle = color;
+            ctx.fillRect(x * blockSize, y * blockSize, blockSize, blockSize);
+            
+            // 方块边框
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(x * blockSize, y * blockSize, blockSize, blockSize);
+            
+            // 内部高光效果
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+            ctx.fillRect(x * blockSize + 2, y * blockSize + 2, blockSize - 4, 8);
+            ctx.fillRect(x * blockSize + 2, y * blockSize + 2, 8, blockSize - 4);
+            
+            // 外部发光效果
+            ctx.shadowColor = color;
+            ctx.shadowBlur = 10;
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            ctx.strokeRect(x * blockSize, y * blockSize, blockSize, blockSize);
+            ctx.shadowBlur = 0;
+        }
+        
+        // 绘制游戏板
+        function drawBoard() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 绘制已落下的方块
+            board.forEach((row, y) => {
+                row.forEach((value, x) => {
+                    if (value !== 0) {
+                        drawBlock(ctx, x, y, COLORS[value]);
+                    }
+                });
+            });
+            
+            // 绘制当前方块
+            if (player.matrix) {
+                player.matrix.forEach((row, y) => {
+                    row.forEach((value, x) => {
+                        if (value !== 0) {
+                            drawBlock(ctx, x + player.pos.x, y + player.pos.y, COLORS[value]);
                         }
                     });
-                }
-                
-                return {
-                    qualification: qual,
-                    score: score
-                };
-            });
+                });
+            }
             
-            // 按得分潜力排序
-            qualificationScores.sort((a, b) => b.score - a.score);
+            // 绘制网格线
+            ctx.strokeStyle = 'rgba(0, 243, 255, 0.1)';
+            ctx.lineWidth = 1;
             
-            // 选择前N个资质
-            const selectedQualifications = qualificationScores.slice(0, qualificationCount);
+            // 垂直线
+            for (let x = 0; x <= COLS; x++) {
+                ctx.beginPath();
+                ctx.moveTo(x * BLOCK_SIZE, 0);
+                ctx.lineTo(x * BLOCK_SIZE, canvas.height);
+                ctx.stroke();
+            }
             
-            // 计算各方得分
-            const vendorScores = {};
-            [myVendor, ...competitors].forEach(vendor => {
-                vendorScores[vendor] = 0;
-            });
+            // 水平线
+            for (let y = 0; y <= ROWS; y++) {
+                ctx.beginPath();
+                ctx.moveTo(0, y * BLOCK_SIZE);
+                ctx.lineTo(canvas.width, y * BLOCK_SIZE);
+                ctx.stroke();
+            }
+        }
+        
+        // 绘制下一个方块预览
+        function drawNextPiece() {
+            nextCtx.clearRect(0, 0, nextCanvas.width, nextCanvas.height);
             
-            selectedQualifications.forEach(item => {
-                [myVendor, ...competitors].forEach(vendor => {
-                    if (item.qualification.vendors[vendor]) {
-                        vendorScores[vendor] += 1;
+            if (!nextPiece) return;
+            
+            const matrix = nextPiece.matrix;
+            const offsetX = (4 - matrix[0].length) / 2;
+            const offsetY = (4 - matrix.length) / 2;
+            
+            matrix.forEach((row, y) => {
+                row.forEach((value, x) => {
+                    if (value !== 0) {
+                        const color = COLORS[value];
+                        nextCtx.fillStyle = color;
+                        nextCtx.fillRect(
+                            (x + offsetX) * 25, 
+                            (y + offsetY) * 25, 
+                            24, 24
+                        );
+                        
+                        nextCtx.strokeStyle = '#FFFFFF';
+                        nextCtx.lineWidth = 1;
+                        nextCtx.strokeRect(
+                            (x + offsetX) * 25, 
+                            (y + offsetY) * 25, 
+                            24, 24
+                        );
+                        
+                        // 发光效果
+                        nextCtx.shadowColor = color;
+                        nextCtx.shadowBlur = 8;
+                        nextCtx.strokeStyle = color;
+                        nextCtx.lineWidth = 1;
+                        nextCtx.strokeRect(
+                            (x + offsetX) * 25, 
+                            (y + offsetY) * 25, 
+                            24, 24
+                        );
+                        nextCtx.shadowBlur = 0;
                     }
                 });
             });
-            
-            // 显示结果
-            displayOptimizationResults(myVendor, competitors, selectedQualifications, vendorScores);
         }
-
-        // 显示优化结果
-        function displayOptimizationResults(myVendor, competitors, selectedQualifications, vendorScores) {
-            const resultsContainer = document.getElementById('optimizationResults');
-            resultsContainer.innerHTML = '';
-            
-            // 显示得分情况
-            const scoreItem = document.createElement('div');
-            scoreItem.className = 'result-item';
-            
-            let scoreHTML = '<h3>得分情况</h3>';
-            
-            // 计算最大得分用于比例显示
-            const maxScore = Math.max(...Object.values(vendorScores));
-            
-            [myVendor, ...competitors].forEach(vendor => {
-                const score = vendorScores[vendor];
-                const percentage = maxScore > 0 ? (score / maxScore) * 100 : 0;
-                
-                scoreHTML += `
-                    <div class="vendor-score">
-                        <span class="vendor-name ${vendor === myVendor ? 'highlight' : ''}">${vendor}</span>
-                        <span>${score}分</span>
-                    </div>
-                    <div class="score-bar">
-                        <div class="score-fill" style="width: ${percentage}%"></div>
-                    </div>
-                `;
-            });
-            
-            const leadScore = vendorScores[myVendor] - Math.max(...competitors.map(c => vendorScores[c]));
-            scoreHTML += `<div class="result-score">我方领先优势: ${leadScore}分</div>`;
-            
-            scoreItem.innerHTML = scoreHTML;
-            resultsContainer.appendChild(scoreItem);
-            
-            // 显示推荐的资质
-            const qualsItem = document.createElement('div');
-            qualsItem.className = 'result-item';
-            
-            let qualsHTML = '<h3>推荐资质组合</h3>';
-            selectedQualifications.forEach(item => {
-                const qual = item.qualification;
-                qualsHTML += `
-                    <div class="qualification-item">
-                        <strong>${qual.name}</strong>
-                        <div>我方: ${qual.vendors[myVendor] ? '有' : '无'}</div>
-                        <div>竞争对手: ${competitors.map(c => `${c}: ${qual.vendors[c] ? '有' : '无'}`).join(', ')}</div>
-                        ${qual.level ? `<div class="level-info">级别: ${qual.level}</div>` : ''}
-                    </div>
-                `;
-            });
-            
-            qualsItem.innerHTML = qualsHTML;
-            resultsContainer.appendChild(qualsItem);
+        
+        // 碰撞检测
+        function collide(board, player) {
+            const [m, o] = [player.matrix, player.pos];
+            for (let y = 0; y < m.length; ++y) {
+                for (let x = 0; x < m[y].length; ++x) {
+                    if (m[y][x] !== 0 &&
+                        (board[y + o.y] &&
+                         board[y + o.y][x + o.x]) !== 0) {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
-
-        // 更新对比表格
-        function updateComparisonTable() {
-            const selectedVendors = Array.from(document.getElementById('comparisonVendors').selectedOptions).map(opt => opt.value);
-            const table = document.getElementById('comparisonTable');
-            
-            // 清空表格
-            table.innerHTML = '';
-            
-            // 创建表头
-            let headerRow = '<tr><th>资质名称</th>';
-            selectedVendors.forEach(vendor => {
-                headerRow += `<th>${vendor}</th>`;
+        
+        // 合并方块到游戏板
+        function merge(board, player) {
+            player.matrix.forEach((row, y) => {
+                row.forEach((value, x) => {
+                    if (value !== 0) {
+                        board[y + player.pos.y][x + player.pos.x] = value;
+                    }
+                });
             });
-            headerRow += '</tr>';
-            table.innerHTML = headerRow;
+        }
+        
+        // 旋转方块
+        function rotate(matrix, dir) {
+            for (let y = 0; y < matrix.length; ++y) {
+                for (let x = 0; x < y; ++x) {
+                    [
+                        matrix[x][y],
+                        matrix[y][x]
+                    ] = [
+                        matrix[y][x],
+                        matrix[x][y]
+                    ];
+                }
+            }
             
-            // 添加数据行
-            qualifications.forEach(qual => {
-                let row = `<tr><td>${qual.name}</td>`;
+            if (dir > 0) {
+                matrix.forEach(row => row.reverse());
+            } else {
+                matrix.reverse();
+            }
+        }
+        
+        // 玩家旋转
+        function playerRotate(dir) {
+            if (isPaused || gameOver) return;
+            
+            const pos = player.pos.x;
+            let offset = 1;
+            rotate(player.matrix, dir);
+            
+            while (collide(board, player)) {
+                player.pos.x += offset;
+                offset = -(offset + (offset > 0 ? 1 : -1));
+                if (offset > player.matrix[0].length) {
+                    rotate(player.matrix, -dir);
+                    player.pos.x = pos;
+                    return;
+                }
+            }
+            
+            drawBoard();
+        }
+        
+        // 玩家移动
+        function playerMove(dir) {
+            if (isPaused || gameOver) return;
+            
+            player.pos.x += dir;
+            if (collide(board, player)) {
+                player.pos.x -= dir;
+                return false;
+            }
+            drawBoard();
+            return true;
+        }
+        
+        // 玩家下落
+        function playerDrop() {
+            if (isPaused || gameOver) return;
+            
+            player.pos.y++;
+            if (collide(board, player)) {
+                player.pos.y--;
+                merge(board, player);
+                resetPlayer();
+                sweep();
+                updateScore();
+            }
+            dropCounter = 0;
+            drawBoard();
+        }
+        
+        // 玩家快速下落
+        function playerDropToBottom() {
+            if (isPaused || gameOver) return;
+            
+            while (!collide(board, player)) {
+                player.pos.y++;
+            }
+            player.pos.y--;
+            playerDrop();
+        }
+        
+        // 消除完整的行
+        function sweep() {
+            let rowCount = 0;
+            
+            outer: for (let y = board.length - 1; y >= 0; --y) {
+                for (let x = 0; x < board[y].length; ++x) {
+                    if (board[y][x] === 0) {
+                        continue outer;
+                    }
+                }
                 
-                selectedVendors.forEach(vendor => {
-                    const hasCert = qual.vendors[vendor];
-                    if (hasCert) {
-                        if (typeof hasCert === 'string') {
-                            row += `<td class="has-cert">${hasCert}</td>`;
-                        } else {
-                            row += '<td class="has-cert">有</td>';
+                const row = board.splice(y, 1)[0].fill(0);
+                board.unshift(row);
+                ++y;
+                rowCount++;
+            }
+            
+            if (rowCount > 0) {
+                lines += rowCount;
+                
+                // 计算得分
+                const linePoints = [0, 40, 100, 300, 1200];
+                score += linePoints[rowCount] * level;
+                
+                // 每消除10行升一级
+                level = Math.floor(lines / 10) + 1;
+                
+                // 随着等级提高，下落速度加快
+                dropInterval = Math.max(100, 1000 - (level - 1) * 50);
+                
+                updateDisplay();
+                
+                // 添加消除效果
+                if (rowCount === 4) {
+                    document.getElementById('game-status').textContent = '四连消除！';
+                    setTimeout(() => {
+                        if (!gameOver) {
+                            document.getElementById('game-status').textContent = '';
                         }
-                    } else {
-                        row += '<td class="no-cert">无</td>';
-                    }
-                });
-                
-                row += '</tr>';
-                table.innerHTML += row;
-            });
-        }
-
-        // 更新选中的竞争对手标签
-        function updateSelectedCompetitors() {
-            const selectedOptions = Array.from(document.getElementById('competitors').selectedOptions);
-            const container = document.getElementById('selectedCompetitors');
-            container.innerHTML = '';
-            
-            selectedOptions.forEach(option => {
-                const tag = document.createElement('div');
-                tag.className = 'vendor-tag';
-                tag.textContent = option.value;
-                container.appendChild(tag);
-            });
-        }
-
-        // 更新选中的对比厂商标签
-        function updateSelectedComparisonVendors() {
-            const selectedOptions = Array.from(document.getElementById('comparisonVendors').selectedOptions);
-            const container = document.getElementById('selectedComparisonVendors');
-            container.innerHTML = '';
-            
-            selectedOptions.forEach(option => {
-                const tag = document.createElement('div');
-                tag.className = 'vendor-tag';
-                tag.textContent = option.value;
-                container.appendChild(tag);
-            });
-        }
-
-        // 初始化
-        document.addEventListener('DOMContentLoaded', function() {
-            // 初始化资质列表
-            initializeQualificationList();
-            
-            // 初始化对比表格
-            updateComparisonTable();
-            
-            // 绑定事件
-            document.getElementById('analyzeBtn').addEventListener('click', analyzeOptimalQualifications);
-            document.getElementById('searchBtn').addEventListener('click', function() {
-                const query = document.getElementById('searchQualification').value;
-                if (query.trim()) {
-                    searchQualification(query);
+                    }, 1000);
                 }
-            });
+            }
+        }
+        
+        // 重置玩家方块
+        function resetPlayer() {
+            player.matrix = nextPiece ? nextPiece.matrix : createPiece().matrix;
+            player.pos.y = 0;
+            player.pos.x = Math.floor(COLS / 2) - Math.floor(player.matrix[0].length / 2);
             
-            document.getElementById('competitors').addEventListener('change', updateSelectedCompetitors);
-            document.getElementById('comparisonVendors').addEventListener('change', function() {
-                updateSelectedComparisonVendors();
-                updateComparisonTable();
-            });
+            // 生成下一个方块
+            nextPiece = createPiece();
+            drawNextPiece();
             
-            // 初始化选中标签
-            updateSelectedCompetitors();
-            updateSelectedComparisonVendors();
+            // 检查游戏是否结束
+            if (collide(board, player)) {
+                gameOver = true;
+                document.getElementById('game-status').textContent = '游戏结束！';
+                document.getElementById('start-btn').textContent = '重新开始';
+            }
+        }
+        
+        // 更新显示
+        function updateDisplay() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('level').textContent = level;
+            document.getElementById('lines').textContent = lines;
+        }
+        
+        // 游戏循环
+        function update(time = 0) {
+            const deltaTime = time - lastTime;
+            lastTime = time;
+            
+            if (!isPaused && !gameOver) {
+                dropCounter += deltaTime;
+                if (dropCounter > dropInterval) {
+                    playerDrop();
+                }
+            }
+            
+            drawBoard();
+            requestAnimationFrame(update);
+        }
+        
+        // 初始化游戏
+        function init() {
+            canvas = document.getElementById('game-canvas');
+            ctx = canvas.getContext('2d');
+            nextCanvas = document.getElementById('next-piece-canvas');
+            nextCtx = nextCanvas.getContext('2d');
+            
+            // 初始化游戏板
+            board = createMatrix(COLS, ROWS);
+            
+            // 创建第一个和下一个方块
+            player.matrix = createPiece().matrix;
+            nextPiece = createPiece();
+            
+            // 设置初始位置
+            player.pos.y = 0;
+            player.pos.x = Math.floor(COLS / 2) - Math.floor(player.matrix[0].length / 2);
+            
+            // 重置游戏状态
+            score = 0;
+            level = 1;
+            lines = 0;
+            gameOver = false;
+            isPaused = false;
+            dropInterval = 1000;
+            
+            updateDisplay();
+            drawBoard();
+            drawNextPiece();
+            
+            document.getElementById('game-status').textContent = '准备开始';
+            document.getElementById('start-btn').textContent = '开始游戏';
+            
+            // 开始游戏循环
+            requestAnimationFrame(update);
+        }
+        
+        // 开始游戏
+        function startGame() {
+            if (gameOver) {
+                init();
+            }
+            isPaused = false;
+            document.getElementById('game-status').textContent = '游戏进行中';
+        }
+        
+        // 暂停/继续游戏
+        function togglePause() {
+            if (gameOver) return;
+            
+            isPaused = !isPaused;
+            document.getElementById('game-status').textContent = isPaused ? '游戏暂停' : '游戏进行中';
+        }
+        
+        // 重置游戏
+        function resetGame() {
+            init();
+        }
+        
+        // 键盘控制
+        document.addEventListener('keydown', event => {
+            if (gameOver && event.key !== 'r' && event.key !== 'R') return;
+            
+            switch(event.key) {
+                case 'ArrowLeft':
+                    event.preventDefault();
+                    playerMove(-1);
+                    break;
+                case 'ArrowRight':
+                    event.preventDefault();
+                    playerMove(1);
+                    break;
+                case 'ArrowDown':
+                    event.preventDefault();
+                    playerDrop();
+                    break;
+                case 'ArrowUp':
+                    event.preventDefault();
+                    playerRotate(1);
+                    break;
+                case ' ':
+                    event.preventDefault();
+                    playerDropToBottom();
+                    break;
+                case 'p':
+                case 'P':
+                    event.preventDefault();
+                    togglePause();
+                    break;
+                case 'r':
+                case 'R':
+                    event.preventDefault();
+                    resetGame();
+                    break;
+            }
         });
+        
+        // 按钮事件监听
+        document.getElementById('start-btn').addEventListener('click', startGame);
+        document.getElementById('pause-btn').addEventListener('click', togglePause);
+        document.getElementById('reset-btn').addEventListener('click', resetGame);
+        
+        // 初始化游戏
+        window.addEventListener('load', init);
     </script>
 </body>
 </html>
