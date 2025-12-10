@@ -3,555 +3,632 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>每日科技新闻 - TechDaily</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/v4-shims.min.css">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#165DFF',
-                        secondary: '#36CFC9',
-                        dark: '#1D2939',
-                        light: '#F9FAFB'
-                    },
-                    fontFamily: {
-                        inter: ['Inter', 'system-ui', 'sans-serif'],
-                    },
-                },
+    <title>服务器厂商资质竞争分析工具</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --light: #ecf0f1;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --dark: #34495e;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: var(--primary);
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--light);
+        }
+        
+        h1 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .description {
+            color: var(--dark);
+            font-size: 1.1rem;
+        }
+        
+        .tool-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+        
+        @media (max-width: 900px) {
+            .tool-container {
+                grid-template-columns: 1fr;
             }
         }
-    </script>
-    <style type="text/tailwindcss">
-        @layer utilities {
-            .content-auto {
-                content-visibility: auto;
-            }
-            .text-gradient {
-                background: linear-gradient(135deg, #165DFF 0%, #36CFC9 100%);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                background-clip: text;
-            }
-            .card-hover {
-                transition: all 0.3s ease;
-            }
-            .card-hover:hover {
-                transform: translateY(-4px);
-                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            }
-            .nav-scroll {
-                transition: background-color 0.3s ease, padding 0.3s ease;
-            }
-            .animate-float {
-                animation: float 6s ease-in-out infinite;
-            }
-            @keyframes float {
-                0% { transform: translateY(0px); }
-                50% { transform: translateY(-10px); }
-                100% { transform: translateY(0px); }
-            }
+        
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .card h2 {
+            color: var(--secondary);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--light);
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        button {
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .vendor-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .vendor-tag {
+            background-color: var(--light);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .results {
+            margin-top: 20px;
+        }
+        
+        .result-item {
+            padding: 12px;
+            border-left: 4px solid var(--secondary);
+            background-color: #f8f9fa;
+            margin-bottom: 10px;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .result-score {
+            font-weight: bold;
+            color: var(--success);
+            margin-top: 5px;
+        }
+        
+        .vendor-score {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        
+        .vendor-name {
+            font-weight: 600;
+        }
+        
+        .score-bar {
+            height: 10px;
+            background-color: var(--light);
+            border-radius: 5px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        
+        .score-fill {
+            height: 100%;
+            background-color: var(--success);
+            border-radius: 5px;
+        }
+        
+        .qualification-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+        }
+        
+        .qualification-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+        }
+        
+        .qualification-item:hover {
+            background-color: #f0f8ff;
+        }
+        
+        .qualification-item:last-child {
+            border-bottom: none;
+        }
+        
+        .highlight {
+            background-color: #fffacd;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .comparison-table th, .comparison-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .comparison-table th {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        .has-cert {
+            color: var(--success);
+            font-weight: bold;
+        }
+        
+        .no-cert {
+            color: var(--danger);
+        }
+        
+        .level-info {
+            font-size: 0.8rem;
+            color: var(--dark);
         }
     </style>
 </head>
-<body class="font-inter bg-light text-dark">
-    <!-- 导航栏 -->
-    <nav id="navbar" class="nav-scroll fixed w-full top-0 z-50 bg-white/95 backdrop-blur-sm shadow-sm">
-        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
-            <div class="flex items-center space-x-2">
-                <div class="w-10 h-10 bg-gradient-to-r from-primary to-secondary rounded-lg flex items-center justify-center">
-                    <i class="fa fa-bolt text-white text-xl"></i>
+<body>
+    <div class="container">
+        <header>
+            <h1>服务器厂商资质竞争分析工具</h1>
+            <p class="description">基于资质竞争分析表，帮助您选择最优资质组合，提高投标得分</p>
+        </header>
+        
+        <div class="tool-container">
+            <div class="card">
+                <h2>资质组合优化器</h2>
+                <div class="form-group">
+                    <label for="myVendor">选择我方厂商</label>
+                    <select id="myVendor">
+                        <option value="联想">联想</option>
+                        <option value="超聚变">超聚变</option>
+                        <option value="浪潮">浪潮</option>
+                        <option value="新华三">新华三</option>
+                        <option value="戴尔">戴尔</option>
+                        <option value="宝德">宝德</option>
+                    </select>
                 </div>
-                <h1 class="text-xl font-bold text-gradient">TechDaily</h1>
+                
+                <div class="form-group">
+                    <label for="competitors">选择竞争对手（可多选）</label>
+                    <select id="competitors" multiple>
+                        <option value="联想">联想</option>
+                        <option value="超聚变" selected>超聚变</option>
+                        <option value="浪潮" selected>浪潮</option>
+                        <option value="新华三">新华三</option>
+                        <option value="戴尔" selected>戴尔</option>
+                        <option value="宝德">宝德</option>
+                    </select>
+                    <div class="vendor-tags" id="selectedCompetitors">
+                        <div class="vendor-tag">超聚变</div>
+                        <div class="vendor-tag">浪潮</div>
+                        <div class="vendor-tag">戴尔</div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="qualificationCount">选择资质数量</label>
+                    <input type="number" id="qualificationCount" min="1" max="20" value="10">
+                </div>
+                
+                <button id="analyzeBtn">分析最优资质组合</button>
+                
+                <div class="results" id="optimizationResults">
+                    <!-- 结果将在这里显示 -->
+                </div>
             </div>
             
-            <!-- 搜索框 -->
-            <div class="hidden md:flex items-center flex-1 max-w-md mx-8">
-                <div class="relative w-full">
-                    <input type="text" placeholder="搜索科技新闻..." 
-                           class="w-full pl-10 pr-4 py-2 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all">
-                    <i class="fa fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+            <div class="card">
+                <h2>资质查询器</h2>
+                <div class="form-group">
+                    <label for="searchQualification">查询资质</label>
+                    <input type="text" id="searchQualification" placeholder="输入资质名称或关键词">
+                    <button id="searchBtn">查询</button>
                 </div>
-            </div>
-            
-            <!-- 导航菜单 -->
-            <div class="flex items-center space-x-6">
-                <a href="#" class="hidden md:block text-dark hover:text-primary transition-colors">首页</a>
-                <a href="#" class="hidden md:block text-gray-600 hover:text-primary transition-colors">AI</a>
-                <a href="#" class="hidden md:block text-gray-600 hover:text-primary transition-colors">区块链</a>
-                <a href="#" class="hidden md:block text-gray-600 hover:text-primary transition-colors">创业</a>
-                <button class="md:hidden text-dark" id="mobile-menu-btn">
-                    <i class="fa fa-bars text-xl"></i>
-                </button>
+                
+                <div class="qualification-list" id="qualificationList">
+                    <!-- 资质列表将在这里显示 -->
+                </div>
+                
+                <div class="results" id="searchResults">
+                    <!-- 查询结果将在这里显示 -->
+                </div>
             </div>
         </div>
         
-        <!-- 移动端菜单 -->
-        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-100">
-            <div class="container mx-auto px-4 py-3 space-y-3">
-                <div class="relative">
-                    <input type="text" placeholder="搜索科技新闻..." 
-                           class="w-full pl-10 pr-4 py-2 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
-                    <i class="fa fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+        <div class="card">
+            <h2>资质对比表</h2>
+            <div class="form-group">
+                <label for="comparisonVendors">选择要对比的厂商</label>
+                <select id="comparisonVendors" multiple>
+                    <option value="联想" selected>联想</option>
+                    <option value="超聚变" selected>超聚变</option>
+                    <option value="浪潮" selected>浪潮</option>
+                    <option value="新华三">新华三</option>
+                    <option value="戴尔" selected>戴尔</option>
+                    <option value="宝德">宝德</option>
+                </select>
+                <div class="vendor-tags" id="selectedComparisonVendors">
+                    <div class="vendor-tag">联想</div>
+                    <div class="vendor-tag">超聚变</div>
+                    <div class="vendor-tag">浪潮</div>
+                    <div class="vendor-tag">戴尔</div>
                 </div>
-                <div class="flex space-x-4">
-                    <a href="#" class="text-dark hover:text-primary transition-colors">AI</a>
-                    <a href="#" class="text-gray-600 hover:text-primary transition-colors">区块链</a>
-                    <a href="#" class="text-gray-600 hover:text-primary transition-colors">创业</a>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <!-- 主要内容 -->
-    <main class="container mx-auto px-4 pt-24 pb-16">
-        <!-- 头部横幅 -->
-        <section class="mb-12">
-            <div class="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-2xl p-8 md:p-12 relative overflow-hidden">
-                <div class="absolute inset-0 opacity-20">
-                    <img src="https://doc.doubao.com/s/ROsi6_sVLhY/" alt="科技背景" class="w-full h-full object-cover">
-                </div>
-                <div class="relative z-10">
-                    <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-dark mb-4">
-                        最新科技资讯，尽在<span class="text-gradient">TechDaily</span>
-                    </h2>
-                    <p class="text-gray-600 mb-6 max-w-2xl">
-                        每日更新全球前沿科技动态，涵盖人工智能、区块链、云计算、创业投资等领域
-                    </p>
-                    <div class="flex flex-wrap gap-4">
-                        <button class="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-lg transition-all shadow-lg hover:shadow-xl">
-                            <i class="fa fa-newspaper-o mr-2"></i>阅读最新
-                        </button>
-                        <button class="bg-white hover:bg-gray-50 text-primary border border-primary px-6 py-3 rounded-lg transition-all">
-                            <i class="fa fa-bell mr-2"></i>订阅更新
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 热门新闻 -->
-        <section class="mb-12">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="text-xl font-bold text-dark">
-                    <i class="fa fa-fire text-red-500 mr-2"></i>热门新闻
-                </h3>
-                <a href="#" class="text-primary hover:text-primary/80 transition-colors">查看全部</a>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- 热门新闻卡片 1 -->
-                <div class="bg-white rounded-xl shadow-md overflow-hidden card-hover">
-                    <div class="relative h-48">
-                        <img src="https://doc.doubao.com/s/vbNF-Y59HXA/" alt="人工智能" class="w-full h-full object-cover">
-                        <div class="absolute top-3 left-3 bg-primary/90 text-white text-xs px-2 py-1 rounded">
-                            AI
-                        </div>
-                    </div>
-                    <div class="p-5">
-                        <h4 class="font-bold text-lg mb-2 hover:text-primary transition-colors cursor-pointer">
-                            人工智能技术突破：最新模型可实现多模态理解
-                        </h4>
-                        <p class="text-gray-600 text-sm mb-3 line-clamp-2">
-                            研究人员开发出新一代AI模型，能够同时理解文本、图像、音频等多种数据类型，在复杂场景中表现优异。
-                        </p>
-                        <div class="flex items-center justify-between text-xs text-gray-500">
-                            <span><i class="fa fa-clock-o mr-1"></i>2小时前</span>
-                            <span><i class="fa fa-eye mr-1"></i>1.2k</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 热门新闻卡片 2 -->
-                <div class="bg-white rounded-xl shadow-md overflow-hidden card-hover">
-                    <div class="relative h-48">
-                        <img src="https://doc.doubao.com/s/wI9A_7t70XE/" alt="芯片技术" class="w-full h-full object-cover">
-                        <div class="absolute top-3 left-3 bg-secondary/90 text-white text-xs px-2 py-1 rounded">
-                            芯片
-                        </div>
-                    </div>
-                    <div class="p-5">
-                        <h4 class="font-bold text-lg mb-2 hover:text-primary transition-colors cursor-pointer">
-                            量子计算迎来重大突破，运算速度提升100倍
-                        </h4>
-                        <p class="text-gray-600 text-sm mb-3 line-clamp-2">
-                            科学家成功研发出新型量子处理器，在特定计算任务上的表现远超传统超级计算机，为密码学和材料科学带来新机遇。
-                        </p>
-                        <div class="flex items-center justify-between text-xs text-gray-500">
-                            <span><i class="fa fa-clock-o mr-1"></i>5小时前</span>
-                            <span><i class="fa fa-eye mr-1"></i>892</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 热门新闻卡片 3 -->
-                <div class="bg-white rounded-xl shadow-md overflow-hidden card-hover">
-                    <div class="relative h-48">
-                        <img src="https://doc.doubao.com/s/ginCW4c17qU/" alt="数据中心" class="w-full h-full object-cover">
-                        <div class="absolute top-3 left-3 bg-purple-500/90 text-white text-xs px-2 py-1 rounded">
-                            云计算
-                        </div>
-                    </div>
-                    <div class="p-5">
-                        <h4 class="font-bold text-lg mb-2 hover:text-primary transition-colors cursor-pointer">
-                            全球最大数据中心建成，可容纳100万台服务器
-                        </h4>
-                        <p class="text-gray-600 text-sm mb-3 line-clamp-2">
-                            某科技巨头宣布完成全球规模最大的数据中心建设，采用最新的绿色能源技术，能耗效率提升40%。
-                        </p>
-                        <div class="flex items-center justify-between text-xs text-gray-500">
-                            <span><i class="fa fa-clock-o mr-1"></i>昨天</span>
-                            <span><i class="fa fa-eye mr-1"></i>2.1k</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 分类新闻 -->
-        <section class="mb-12">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="text-xl font-bold text-dark">
-                    <i class="fa fa-th-large text-primary mr-2"></i>分类浏览
-                </h3>
-                <div class="flex space-x-2">
-                    <button class="category-btn bg-primary text-white px-4 py-2 rounded-lg text-sm">全部</button>
-                    <button class="category-btn bg-white text-gray-600 hover:bg-gray-100 px-4 py-2 rounded-lg text-sm transition-colors">AI</button>
-                    <button class="category-btn bg-white text-gray-600 hover:bg-gray-100 px-4 py-2 rounded-lg text-sm transition-colors">区块链</button>
-                    <button class="category-btn bg-white text-gray-600 hover:bg-gray-100 px-4 py-2 rounded-lg text-sm transition-colors">创业</button>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- 新闻列表 -->
-                <div class="space-y-4">
-                    <!-- 新闻项 1 -->
-                    <div class="bg-white rounded-lg p-4 hover:shadow-md transition-shadow">
-                        <div class="flex gap-4">
-                            <div class="w-20 h-20 flex-shrink-0">
-                                <img src="https://doc.doubao.com/s/4Is1KtJNcGQ/" alt="科技设备" class="w-full h-full object-cover rounded">
-                            </div>
-                            <div class="flex-1">
-                                <h4 class="font-semibold text-dark hover:text-primary transition-colors cursor-pointer mb-1">
-                                    新型可折叠屏幕技术问世，厚度仅0.1毫米
-                                </h4>
-                                <p class="text-gray-600 text-sm line-clamp-2 mb-2">
-                                    韩国科技公司展示了最新研发的可折叠显示技术，具有超高柔韧性和透明度，有望应用于下一代智能手机和可穿戴设备。
-                                </p>
-                                <div class="flex items-center justify-between text-xs text-gray-500">
-                                    <span><i class="fa fa-calendar mr-1"></i>2025-12-04</span>
-                                    <span><i class="fa fa-comment mr-1"></i>32</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 新闻项 2 -->
-                    <div class="bg-white rounded-lg p-4 hover:shadow-md transition-shadow">
-                        <div class="flex gap-4">
-                            <div class="w-20 h-20 flex-shrink-0">
-                                <img src="https://doc.doubao.com/s/gLL1yVBpoBU/" alt="未来科技" class="w-full h-full object-cover rounded">
-                            </div>
-                            <div class="flex-1">
-                                <h4 class="font-semibold text-dark hover:text-primary transition-colors cursor-pointer mb-1">
-                                    自动驾驶技术取得重大进展，城市道路测试成功率达99.8%
-                                </h4>
-                                <p class="text-gray-600 text-sm line-clamp-2 mb-2">
-                                    多家汽车制造商联合宣布，其自动驾驶系统在复杂城市环境中的测试表现优异，为商业化应用奠定基础。
-                                </p>
-                                <div class="flex items-center justify-between text-xs text-gray-500">
-                                    <span><i class="fa fa-calendar mr-1"></i>2025-12-04</span>
-                                    <span><i class="fa fa-comment mr-1"></i>45</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 新闻项 3 -->
-                    <div class="bg-white rounded-lg p-4 hover:shadow-md transition-shadow">
-                        <div class="flex gap-4">
-                            <div class="w-20 h-20 flex-shrink-0">
-                                <img src="https://doc.doubao.com/s/SBbApho0qtQ/" alt="科技创新" class="w-full h-full object-cover rounded">
-                            </div>
-                            <div class="flex-1">
-                                <h4 class="font-semibold text-dark hover:text-primary transition-colors cursor-pointer mb-1">
-                                    全球科技投资创历史新高，AI领域吸金超500亿美元
-                                </h4>
-                                <p class="text-gray-600 text-sm line-clamp-2 mb-2">
-                                    最新报告显示，2025年全球科技投资规模达到新高度，人工智能、生物科技和清洁能源成为投资热点。
-                                </p>
-                                <div class="flex items-center justify-between text-xs text-gray-500">
-                                    <span><i class="fa fa-calendar mr-1"></i>2025-12-03</span>
-                                    <span><i class="fa fa-comment mr-1"></i>28</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 侧边栏 -->
-                <div class="space-y-6">
-                    <!-- 订阅卡片 -->
-                    <div class="bg-gradient-to-br from-primary to-secondary rounded-xl p-6 text-white">
-                        <h4 class="font-bold text-lg mb-3">
-                            <i class="fa fa-envelope mr-2"></i>订阅每日科技简报
-                        </h4>
-                        <p class="text-white/80 text-sm mb-4">
-                            每天获取精选科技新闻，不错过任何重要资讯
-                        </p>
-                        <div class="space-y-3">
-                            <input type="email" placeholder="输入您的邮箱" 
-                                   class="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 placeholder-white/60 text-white focus:outline-none focus:ring-2 focus:ring-white/50">
-                            <button class="w-full bg-white text-primary font-medium py-2 rounded-lg hover:bg-white/90 transition-colors">
-                                立即订阅
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- 热门标签 -->
-                    <div class="bg-white rounded-xl p-5 shadow-sm">
-                        <h4 class="font-bold text-dark mb-4">热门标签</h4>
-                        <div class="flex flex-wrap gap-2">
-                            <span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-primary/20 transition-colors">#人工智能</span>
-                            <span class="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-gray-200 transition-colors">#区块链</span>
-                            <span class="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-gray-200 transition-colors">#元宇宙</span>
-                            <span class="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-gray-200 transition-colors">#量子计算</span>
-                            <span class="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-gray-200 transition-colors">#自动驾驶</span>
-                            <span class="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-gray-200 transition-colors">#清洁能源</span>
-                        </div>
-                    </div>
-
-                    <!-- 阅读统计 -->
-                    <div class="bg-white rounded-xl p-5 shadow-sm">
-                        <h4 class="font-bold text-dark mb-4">
-                            <i class="fa fa-bar-chart text-primary mr-2"></i>阅读趋势
-                        </h4>
-                        <div class="space-y-3">
-                            <div>
-                                <div class="flex justify-between text-sm mb-1">
-                                    <span class="text-gray-600">人工智能</span>
-                                    <span class="font-medium">85%</span>
-                                </div>
-                                <div class="w-full bg-gray-100 rounded-full h-2">
-                                    <div class="bg-primary h-2 rounded-full" style="width: 85%"></div>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="flex justify-between text-sm mb-1">
-                                    <span class="text-gray-600">区块链</span>
-                                    <span class="font-medium">62%</span>
-                                </div>
-                                <div class="w-full bg-gray-100 rounded-full h-2">
-                                    <div class="bg-secondary h-2 rounded-full" style="width: 62%"></div>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="flex justify-between text-sm mb-1">
-                                    <span class="text-gray-600">创业投资</span>
-                                    <span class="font-medium">48%</span>
-                                </div>
-                                <div class="w-full bg-gray-100 rounded-full h-2">
-                                    <div class="bg-purple-500 h-2 rounded-full" style="width: 48%"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 加载更多 -->
-        <section class="text-center">
-            <button id="load-more" class="bg-white border border-gray-200 text-gray-600 px-6 py-3 rounded-lg hover:bg-gray-50 transition-colors">
-                <i class="fa fa-refresh mr-2"></i>加载更多新闻
-            </button>
-        </section>
-    </main>
-
-    <!-- 页脚 -->
-    <footer class="bg-dark text-white pt-12 pb-6">
-        <div class="container mx-auto px-4">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-                <div>
-                    <div class="flex items-center space-x-2 mb-4">
-                        <div class="w-10 h-10 bg-gradient-to-r from-primary to-secondary rounded-lg flex items-center justify-center">
-                            <i class="fa fa-bolt text-white text-xl"></i>
-                        </div>
-                        <h3 class="text-xl font-bold">TechDaily</h3>
-                    </div>
-                    <p class="text-gray-400 text-sm mb-4">
-                        每日科技新闻，为您带来全球最新的科技资讯和深度分析
-                    </p>
-                    <div class="flex space-x-4">
-                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
-                            <i class="fa fa-twitter text-xl"></i>
-                        </a>
-                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
-                            <i class="fa fa-facebook text-xl"></i>
-                        </a>
-                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
-                            <i class="fa fa-linkedin text-xl"></i>
-                        </a>
-                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
-                            <i class="fa fa-instagram text-xl"></i>
-                        </a>
-                    </div>
-                </div>
-
-                <div>
-                    <h4 class="font-bold mb-4">分类导航</h4>
-                    <ul class="space-y-2 text-gray-400">
-                        <li><a href="#" class="hover:text-white transition-colors">人工智能</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">区块链</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">云计算</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">创业投资</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">科技产品</a></li>
-                    </ul>
-                </div>
-
-                <div>
-                    <h4 class="font-bold mb-4">关于我们</h4>
-                    <ul class="space-y-2 text-gray-400">
-                        <li><a href="#" class="hover:text-white transition-colors">公司简介</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">联系方式</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">加入我们</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">广告合作</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">隐私政策</a></li>
-                    </ul>
-                </div>
-
-                <div>
-                    <h4 class="font-bold mb-4">联系我们</h4>
-                    <ul class="space-y-2 text-gray-400">
-                        <li class="flex items-center">
-                            <i class="fa fa-envelope mr-2"></i>
-                            <span>contact@techdaily.com</span>
-                        </li>
-                        <li class="flex items-center">
-                            <i class="fa fa-phone mr-2"></i>
-                            <span>+86 123 4567 8910</span>
-                        </li>
-                        <li class="flex items-center">
-                            <i class="fa fa-map-marker mr-2"></i>
-                            <span>北京市海淀区科技园区</span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="border-t border-gray-800 pt-6 text-center text-gray-500 text-sm">
-                <p>&copy; 2025 TechDaily. 保留所有权利。</p>
-            </div>
+            <table class="comparison-table" id="comparisonTable">
+                <!-- 对比表格将在这里显示 -->
+            </table>
         </div>
-    </footer>
-
-    <!-- 返回顶部按钮 -->
-    <button id="back-to-top" class="fixed bottom-6 right-6 bg-primary/90 text-white w-12 h-12 rounded-full shadow-lg hover:bg-primary transition-all opacity-0 invisible">
-        <i class="fa fa-arrow-up"></i>
-    </button>
+    </div>
 
     <script>
-        // 移动端菜单切换
-        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-        const mobileMenu = document.getElementById('mobile-menu');
-        
-        mobileMenuBtn.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-        });
+        // 资质数据 - 从提供的表格中提取
+        const qualifications = [
+            { id: 1, name: "高新技术企业认定", vendors: { "联想": false, "超聚变": true, "浪潮": true, "新华三": true, "戴尔": true, "宝德": true }, level: "" },
+            { id: 2, name: "质量管理体系认证", vendors: { "联想": true, "超聚变": true, "浪潮": true, "新华三": true, "戴尔": true, "宝德": true }, level: "" },
+            { id: 3, name: "环境管理体系认证", vendors: { "联想": true, "超聚变": true, "浪潮": true, "新华三": true, "戴尔": true, "宝德": true }, level: "" },
+            { id: 4, name: "中国职业健康安全管理体系认证", vendors: { "联想": true, "超聚变": true, "浪潮": true, "新华三": true, "戴尔": true, "宝德": true }, level: "" },
+            { id: 5, name: "信息安全管理体系认证", vendors: { "联想": true, "超聚变": true, "浪潮": true, "新华三": true, "戴尔": false, "宝德": true }, level: "" },
+            { id: 6, name: "信息技术服务管理体系认证", vendors: { "联想": true, "超聚变": true, "浪潮": true, "新华三": true, "戴尔": true, "宝德": true }, level: "" },
+            { id: 7, name: "能源管理体系认证", vendors: { "联想": true, "超聚变": true, "浪潮": true, "新华三": true, "戴尔": false, "宝德": true }, level: "" },
+            { id: 8, name: "企业知识产权管理体系认证", vendors: { "联想": true, "超聚变": true, "浪潮": true, "新华三": true, "戴尔": false, "宝德": true }, level: "" },
+            { id: 9, name: "静电防护标准认证", vendors: { "联想": true, "超聚变": true, "浪潮": true, "新华三": true, "戴尔": false, "宝德": false }, level: "" },
+            { id: 10, name: "供应链安全管理体系认证", vendors: { "联想": true, "超聚变": true, "浪潮": true, "新华三": true, "戴尔": false, "宝德": true }, level: "" },
+            { id: 11, name: "企业社会责任管理体系认证", vendors: { "联想": false, "超聚变": true, "浪潮": true, "新华三": true, "戴尔": false, "宝德": true }, level: "" },
+            { id: 12, name: "业务连续性管理体系认证", vendors: { "联想": true, "超聚变": true, "浪潮": true, "新华三": true, "戴尔": false, "宝德": true }, level: "" },
+            { id: 13, name: "反贿赂管理体系认证", vendors: { "联想": false, "超聚变": true, "浪潮": false, "新华三": false, "戴尔": false, "宝德": false }, level: "" },
+            { id: 14, name: "培训管理体系认证", vendors: { "联想": false, "超聚变": true, "浪潮": false, "新华三": false, "戴尔": false, "宝德": false }, level: "" },
+            { id: 15, name: "企业诚信管理体系认证", vendors: { "联想": false, "超聚变": true, "浪潮": false, "新华三": false, "戴尔": false, "宝德": false }, level: "" },
+            { id: 16, name: "数据治理管理体系认证", vendors: { "联想": false, "超聚变": true, "浪潮": true, "新华三": true, "戴尔": false, "宝德": true }, level: "" },
+            { id: 17, name: "隐私信息管理体系认证", vendors: { "联想": true, "超聚变": true, "浪潮": true, "新华三": true, "戴尔": false, "宝德": true }, level: "" },
+            { id: 18, name: "应急预案管理能力评价认证", vendors: { "联想": false, "超聚变": false, "浪潮": false, "新华三": true, "戴尔": false, "宝德": false }, level: "" },
+            { id: 19, name: "云服务信息安全管理体系认证", vendors: { "联想": false, "超聚变": false, "浪潮": false, "新华三": true, "戴尔": false, "宝德": false }, level: "" },
+            { id: 20, name: "个人信息安全管理体系认证", vendors: { "联想": false, "超聚变": false, "浪潮": false, "新华三": true, "戴尔": false, "宝德": false }, level: "" },
+            { id: 21, name: "个人身份信息保护管理体系认证", vendors: { "联想": false, "超聚变": false, "浪潮": false, "新华三": true, "戴尔": false, "宝德": false }, level: "" },
+            { id: 22, name: "合规管理体系认证", vendors: { "联想": false, "超聚变": false, "浪潮": false, "新华三": false, "戴尔": false, "宝德": true }, level: "" },
+            { id: 23, name: "商品售后服务评价体系", vendors: { "联想": "五星级", "超聚变": "五星级", "浪潮": "五星级", "新华三": "五星级", "戴尔": false, "宝德": "五星级" }, level: "达标、三星、四星、五星" },
+            { id: 24, name: "售后服务体系完善程度认证证书", vendors: { "联想": "七星级", "超聚变": "七星级", "浪潮": "七星级", "新华三": "七星级", "戴尔": false, "宝德": "七星级" }, level: "七星、八星、九星" },
+            { id: 25, name: "信息安全服务资质认证", vendors: { "联想": false, "超聚变": true, "浪潮": false, "新华三": true, "戴尔": false, "宝德": false }, level: "" },
+            { id: 26, name: "CCCS客户联络中心标准体系认证证书", vendors: { "联想": "五星级", "超聚变": false, "浪潮": "五星级", "新华三": false, "戴尔": false, "宝德": false }, level: "四星、五星" },
+            { id: 27, name: "ITSS信息技术服务标准符合性证书-运行维护", vendors: { "联想": "三级", "超聚变": "二级", "浪潮": "三级", "新华三": "二级", "戴尔": false, "宝德": false }, level: "四、三、二、一" },
+            { id: 28, name: "ITSS信息技术服务标准符合性证书-数据中心", vendors: { "联想": false, "超聚变": "二级", "浪潮": false, "新华三": false, "戴尔": false, "宝德": false }, level: "四、三、二、一" },
+            { id: 29, name: "国家信息安全测评信息安全服务资质证书", vendors: { "联想": false, "超聚变": false, "浪潮": false, "新华三": true, "戴尔": false, "宝德": false }, level: "一、二、三、四、五" },
+            { id: 30, name: "IT产品信息安全认证证书", vendors: { "联想": true, "超聚变": true, "浪潮": true, "新华三": true, "戴尔": false, "宝德": true }, level: "" },
+            { id: 31, name: "可信安全供应链产品能力检测证书", vendors: { "联想": false, "超聚变": true, "浪潮": false, "新华三": false, "戴尔": false, "宝德": false }, level: "" },
+            { id: 32, name: "CMMI（软件能力成熟度模型集成）", vendors: { "联想": false, "超聚变": "5", "浪潮": "3", "新华三": "5", "戴尔": false, "宝德": false }, level: "一、二、三、四、五" },
+            { id: 33, name: "国家级工业设计中心", vendors: { "联想": false, "超聚变": false, "浪潮": true, "新华三": false, "戴尔": false, "宝德": false }, level: "" },
+            { id: 34, name: "国家企业技术中心", vendors: { "联想": false, "超聚变": false, "浪潮": false, "新华三": true, "戴尔": false, "宝德": false }, level: "" },
+            { id: 35, name: "温室气体排放和清除的量化和报告的规范及指南认证", vendors: { "联想": true, "超聚变": false, "浪潮": false, "新华三": false, "戴尔": false, "宝德": true }, level: "" },
+            { id: 36, name: "国家绿色数据中心先进实用技术产品", vendors: { "联想": true, "超聚变": false, "浪潮": false, "新华三": false, "戴尔": false, "宝德": false }, level: "" },
+            { id: 37, name: "中国人工智能产业发展联盟人工智能关键技术和应用评测重点实验室-大模型计算资源调度平台技术要求核心编写单位", vendors: { "联想": true, "超聚变": false, "浪潮": false, "新华三": false, "戴尔": false, "宝德": false }, level: "" },
+            { id: 38, name: "人工智能管理体系", vendors: { "联想": true, "超聚变": false, "浪潮": false, "新华三": false, "戴尔": false, "宝德": false }, level: "" },
+            { id: 39, name: "创新管理体系认证", vendors: { "联想": true, "超聚变": false, "浪潮": false, "新华三": false, "戴尔": false, "宝德": false }, level: "" }
+        ];
 
-        // 导航栏滚动效果
-        const navbar = document.getElementById('navbar');
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 50) {
-                navbar.classList.add('py-2', 'shadow');
-                navbar.classList.remove('py-3');
-            } else {
-                navbar.classList.add('py-3');
-                navbar.classList.remove('py-2', 'shadow');
-            }
-        });
-
-        // 分类按钮切换
-        const categoryBtns = document.querySelectorAll('.category-btn');
-        categoryBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                categoryBtns.forEach(b => {
-                    b.classList.remove('bg-primary', 'text-white');
-                    b.classList.add('bg-white', 'text-gray-600', 'hover:bg-gray-100');
-                });
-                btn.classList.remove('bg-white', 'text-gray-600', 'hover:bg-gray-100');
-                btn.classList.add('bg-primary', 'text-white');
-            });
-        });
-
-        // 返回顶部按钮
-        const backToTopBtn = document.getElementById('back-to-top');
-        
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 300) {
-                backToTopBtn.classList.remove('opacity-0', 'invisible');
-                backToTopBtn.classList.add('opacity-100', 'visible');
-            } else {
-                backToTopBtn.classList.add('opacity-0', 'invisible');
-                backToTopBtn.classList.remove('opacity-100', 'visible');
-            }
-        });
-
-        backToTopBtn.addEventListener('click', () => {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-        });
-
-        // 加载更多按钮
-        const loadMoreBtn = document.getElementById('load-more');
-        loadMoreBtn.addEventListener('click', () => {
-            loadMoreBtn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>加载中...';
-            loadMoreBtn.disabled = true;
+        // 初始化资质列表
+        function initializeQualificationList() {
+            const listContainer = document.getElementById('qualificationList');
+            listContainer.innerHTML = '';
             
-            // 模拟加载延迟
-            setTimeout(() => {
-                loadMoreBtn.innerHTML = '<i class="fa fa-refresh mr-2"></i>加载更多新闻';
-                loadMoreBtn.disabled = false;
-                alert('已加载全部新闻');
-            }, 1500);
-        });
+            qualifications.forEach(qual => {
+                const item = document.createElement('div');
+                item.className = 'qualification-item';
+                item.textContent = qual.name;
+                item.addEventListener('click', () => {
+                    searchQualification(qual.name);
+                });
+                listContainer.appendChild(item);
+            });
+        }
 
-        // 平滑滚动
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
+        // 搜索资质
+        function searchQualification(query) {
+            const resultsContainer = document.getElementById('searchResults');
+            resultsContainer.innerHTML = '';
+            
+            const searchTerm = query.toLowerCase();
+            const matchingQuals = qualifications.filter(qual => 
+                qual.name.toLowerCase().includes(searchTerm)
+            );
+            
+            if (matchingQuals.length === 0) {
+                resultsContainer.innerHTML = '<div class="result-item">未找到匹配的资质</div>';
+                return;
+            }
+            
+            matchingQuals.forEach(qual => {
+                const resultItem = document.createElement('div');
+                resultItem.className = 'result-item';
+                
+                let vendorsWithCert = [];
+                let vendorsWithoutCert = [];
+                
+                for (const vendor in qual.vendors) {
+                    if (qual.vendors[vendor]) {
+                        vendorsWithCert.push(vendor);
+                    } else {
+                        vendorsWithoutCert.push(vendor);
+                    }
+                }
+                
+                resultItem.innerHTML = `
+                    <h3>${qual.name}</h3>
+                    <div><strong>拥有此资质的厂商:</strong> ${vendorsWithCert.join(', ')}</div>
+                    <div><strong>无此资质的厂商:</strong> ${vendorsWithoutCert.join(', ')}</div>
+                    ${qual.level ? `<div class="level-info"><strong>级别说明:</strong> ${qual.level}</div>` : ''}
+                `;
+                
+                resultsContainer.appendChild(resultItem);
+            });
+        }
+
+        // 分析最优资质组合
+        function analyzeOptimalQualifications() {
+            const myVendor = document.getElementById('myVendor').value;
+            const competitors = Array.from(document.getElementById('competitors').selectedOptions).map(opt => opt.value);
+            const qualificationCount = parseInt(document.getElementById('qualificationCount').value);
+            
+            // 计算每个资质的得分潜力
+            const qualificationScores = qualifications.map(qual => {
+                let score = 0;
+                
+                // 我方有此资质
+                if (qual.vendors[myVendor]) {
+                    // 每个竞争对手没有此资质，得1分
+                    competitors.forEach(competitor => {
+                        if (!qual.vendors[competitor]) {
+                            score += 1;
+                        }
                     });
                 }
+                
+                return {
+                    qualification: qual,
+                    score: score
+                };
             });
-        });
-
-        // 图片懒加载
-        document.addEventListener("DOMContentLoaded", function() {
-            const lazyImages = document.querySelectorAll("img");
-            const imageObserver = new IntersectionObserver((entries, observer) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const img = entry.target;
-                        img.classList.add('opacity-100');
-                        img.classList.remove('opacity-0');
-                        observer.unobserve(img);
+            
+            // 按得分潜力排序
+            qualificationScores.sort((a, b) => b.score - a.score);
+            
+            // 选择前N个资质
+            const selectedQualifications = qualificationScores.slice(0, qualificationCount);
+            
+            // 计算各方得分
+            const vendorScores = {};
+            [myVendor, ...competitors].forEach(vendor => {
+                vendorScores[vendor] = 0;
+            });
+            
+            selectedQualifications.forEach(item => {
+                [myVendor, ...competitors].forEach(vendor => {
+                    if (item.qualification.vendors[vendor]) {
+                        vendorScores[vendor] += 1;
                     }
                 });
             });
+            
+            // 显示结果
+            displayOptimizationResults(myVendor, competitors, selectedQualifications, vendorScores);
+        }
 
-            lazyImages.forEach(img => {
-                img.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-                imageObserver.observe(img);
+        // 显示优化结果
+        function displayOptimizationResults(myVendor, competitors, selectedQualifications, vendorScores) {
+            const resultsContainer = document.getElementById('optimizationResults');
+            resultsContainer.innerHTML = '';
+            
+            // 显示得分情况
+            const scoreItem = document.createElement('div');
+            scoreItem.className = 'result-item';
+            
+            let scoreHTML = '<h3>得分情况</h3>';
+            
+            // 计算最大得分用于比例显示
+            const maxScore = Math.max(...Object.values(vendorScores));
+            
+            [myVendor, ...competitors].forEach(vendor => {
+                const score = vendorScores[vendor];
+                const percentage = maxScore > 0 ? (score / maxScore) * 100 : 0;
+                
+                scoreHTML += `
+                    <div class="vendor-score">
+                        <span class="vendor-name ${vendor === myVendor ? 'highlight' : ''}">${vendor}</span>
+                        <span>${score}分</span>
+                    </div>
+                    <div class="score-bar">
+                        <div class="score-fill" style="width: ${percentage}%"></div>
+                    </div>
+                `;
             });
+            
+            const leadScore = vendorScores[myVendor] - Math.max(...competitors.map(c => vendorScores[c]));
+            scoreHTML += `<div class="result-score">我方领先优势: ${leadScore}分</div>`;
+            
+            scoreItem.innerHTML = scoreHTML;
+            resultsContainer.appendChild(scoreItem);
+            
+            // 显示推荐的资质
+            const qualsItem = document.createElement('div');
+            qualsItem.className = 'result-item';
+            
+            let qualsHTML = '<h3>推荐资质组合</h3>';
+            selectedQualifications.forEach(item => {
+                const qual = item.qualification;
+                qualsHTML += `
+                    <div class="qualification-item">
+                        <strong>${qual.name}</strong>
+                        <div>我方: ${qual.vendors[myVendor] ? '有' : '无'}</div>
+                        <div>竞争对手: ${competitors.map(c => `${c}: ${qual.vendors[c] ? '有' : '无'}`).join(', ')}</div>
+                        ${qual.level ? `<div class="level-info">级别: ${qual.level}</div>` : ''}
+                    </div>
+                `;
+            });
+            
+            qualsItem.innerHTML = qualsHTML;
+            resultsContainer.appendChild(qualsItem);
+        }
+
+        // 更新对比表格
+        function updateComparisonTable() {
+            const selectedVendors = Array.from(document.getElementById('comparisonVendors').selectedOptions).map(opt => opt.value);
+            const table = document.getElementById('comparisonTable');
+            
+            // 清空表格
+            table.innerHTML = '';
+            
+            // 创建表头
+            let headerRow = '<tr><th>资质名称</th>';
+            selectedVendors.forEach(vendor => {
+                headerRow += `<th>${vendor}</th>`;
+            });
+            headerRow += '</tr>';
+            table.innerHTML = headerRow;
+            
+            // 添加数据行
+            qualifications.forEach(qual => {
+                let row = `<tr><td>${qual.name}</td>`;
+                
+                selectedVendors.forEach(vendor => {
+                    const hasCert = qual.vendors[vendor];
+                    if (hasCert) {
+                        if (typeof hasCert === 'string') {
+                            row += `<td class="has-cert">${hasCert}</td>`;
+                        } else {
+                            row += '<td class="has-cert">有</td>';
+                        }
+                    } else {
+                        row += '<td class="no-cert">无</td>';
+                    }
+                });
+                
+                row += '</tr>';
+                table.innerHTML += row;
+            });
+        }
+
+        // 更新选中的竞争对手标签
+        function updateSelectedCompetitors() {
+            const selectedOptions = Array.from(document.getElementById('competitors').selectedOptions);
+            const container = document.getElementById('selectedCompetitors');
+            container.innerHTML = '';
+            
+            selectedOptions.forEach(option => {
+                const tag = document.createElement('div');
+                tag.className = 'vendor-tag';
+                tag.textContent = option.value;
+                container.appendChild(tag);
+            });
+        }
+
+        // 更新选中的对比厂商标签
+        function updateSelectedComparisonVendors() {
+            const selectedOptions = Array.from(document.getElementById('comparisonVendors').selectedOptions);
+            const container = document.getElementById('selectedComparisonVendors');
+            container.innerHTML = '';
+            
+            selectedOptions.forEach(option => {
+                const tag = document.createElement('div');
+                tag.className = 'vendor-tag';
+                tag.textContent = option.value;
+                container.appendChild(tag);
+            });
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化资质列表
+            initializeQualificationList();
+            
+            // 初始化对比表格
+            updateComparisonTable();
+            
+            // 绑定事件
+            document.getElementById('analyzeBtn').addEventListener('click', analyzeOptimalQualifications);
+            document.getElementById('searchBtn').addEventListener('click', function() {
+                const query = document.getElementById('searchQualification').value;
+                if (query.trim()) {
+                    searchQualification(query);
+                }
+            });
+            
+            document.getElementById('competitors').addEventListener('change', updateSelectedCompetitors);
+            document.getElementById('comparisonVendors').addEventListener('change', function() {
+                updateSelectedComparisonVendors();
+                updateComparisonTable();
+            });
+            
+            // 初始化选中标签
+            updateSelectedCompetitors();
+            updateSelectedComparisonVendors();
         });
     </script>
 </body>
