@@ -1,835 +1,1212 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>赛博朋克俄罗斯方块</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Courier New', 'Segoe UI', monospace;
+<html lang="zh-CN"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>自然背景日历应用</title>
+  <!-- Tailwind CSS v3 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome -->
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <!-- 统一的 Tailwind 配置 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#0065FD',
+            secondary: '#60a5fa',
+            event1: 'rgba(16,185,129,0.6)', // 绿色
+            event2: 'rgba(139,92,246,0.6)', // 紫色
+            event3: 'rgba(245,158,11,0.6)', // 黄色
+            event4: 'rgba(236,72,153,0.6)', // 粉色
+            event5: 'rgba(6,182,212,0.6)', // 青色
+            event6: 'rgba(239,68,68,0.6)', // 红色
+            event7: 'rgba(132,204,22,0.6)', // 浅绿色
+            event8: 'rgba(99,102,241,0.6)', // 靛蓝色
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.5s ease-in-out',
+            'fade-in-delay-1': 'fadeIn 0.5s ease-in-out 0.1s forwards',
+            'fade-in-delay-2': 'fadeIn 0.5s ease-in-out 0.2s forwards',
+            'fade-in-delay-3': 'fadeIn 0.5s ease-in-out 0.3s forwards',
+            'fade-in-delay-4': 'fadeIn 0.5s ease-in-out 0.4s forwards',
+            'fade-in-delay-5': 'fadeIn 0.5s ease-in-out 0.5s forwards',
+            'typing': 'typing 1.5s steps(30, end)',
+            'blink': 'blink 1s infinite',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0', transform: 'translateY(10px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+            typing: {
+              'from': { width: '0' },
+              'to': { width: '100%' },
+            },
+            blink: {
+              'from, to': { borderColor: 'transparent' },
+              '50%': { borderColor: 'white' },
+            },
+          },
         }
-        
-        body {
-            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3a 100%);
-            color: #00f3ff;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-            overflow-x: hidden;
-        }
-        
-        .container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 30px;
-            max-width: 1200px;
-            width: 100%;
-            margin-top: 20px;
-        }
-        
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-            padding: 20px;
-            width: 100%;
-        }
-        
-        h1 {
-            font-size: 3.5rem;
-            text-transform: uppercase;
-            letter-spacing: 4px;
-            margin-bottom: 10px;
-            text-shadow: 0 0 10px #00f3ff, 0 0 20px #00f3ff;
-            background: linear-gradient(90deg, #00f3ff, #ff00ff);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            animation: glow 2s ease-in-out infinite alternate;
-        }
-        
-        @keyframes glow {
-            from { filter: drop-shadow(0 0 5px #00f3ff); }
-            to { filter: drop-shadow(0 0 20px #ff00ff); }
-        }
-        
-        .game-area {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        
-        .game-board {
-            border: 3px solid #00f3ff;
-            border-radius: 5px;
-            box-shadow: 0 0 15px #00f3ff, inset 0 0 10px rgba(0, 243, 255, 0.3);
-            background-color: rgba(0, 10, 20, 0.8);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .game-board::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: 
-                linear-gradient(90deg, transparent 50%, rgba(0, 243, 255, 0.05) 50%),
-                linear-gradient(transparent 50%, rgba(0, 243, 255, 0.05) 50%);
-            background-size: 30px 30px;
-            pointer-events: none;
-        }
-        
-        #game-canvas {
-            display: block;
-            background-color: transparent;
-            z-index: 1;
-            position: relative;
-        }
-        
-        .side-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
-            min-width: 280px;
-        }
-        
-        .panel {
-            background: rgba(10, 15, 30, 0.8);
-            border: 2px solid #ff00ff;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 0 10px #ff00ff, inset 0 0 5px rgba(255, 0, 255, 0.3);
-        }
-        
-        .panel h2 {
-            color: #ff00ff;
-            font-size: 1.8rem;
-            margin-bottom: 15px;
-            text-align: center;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            border-bottom: 1px solid #ff00ff;
-            padding-bottom: 8px;
-        }
-        
-        .info-item {
-            display: flex;
-            justify-content: space-between;
-            margin: 12px 0;
-            font-size: 1.2rem;
-        }
-        
-        .info-value {
-            color: #00ff9d;
-            font-weight: bold;
-            text-shadow: 0 0 5px #00ff9d;
-        }
-        
-        .next-piece-container {
-            display: flex;
-            justify-content: center;
-            margin-top: 10px;
-        }
-        
-        #next-piece-canvas {
-            border: 2px solid #00f3ff;
-            border-radius: 5px;
-            background-color: rgba(0, 20, 40, 0.9);
-        }
-        
-        .controls {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-top: 10px;
-        }
-        
-        .control-key {
-            background: rgba(0, 243, 255, 0.1);
-            border: 1px solid #00f3ff;
-            border-radius: 5px;
-            padding: 8px;
-            text-align: center;
-            font-size: 0.9rem;
-            color: #00f3ff;
-        }
-        
-        .control-key span {
-            display: block;
-            font-weight: bold;
-            color: #ff00ff;
-            font-size: 1.1rem;
-        }
-        
-        .buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-top: 20px;
-        }
-        
-        .btn {
-            padding: 15px 20px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: all 0.3s;
-        }
-        
-        .btn-start {
-            background: linear-gradient(45deg, #00f3ff, #0066ff);
-            color: #0a0a1a;
-            box-shadow: 0 0 10px #00f3ff;
-        }
-        
-        .btn-pause {
-            background: linear-gradient(45deg, #ff00ff, #cc00ff);
-            color: #0a0a1a;
-            box-shadow: 0 0 10px #ff00ff;
-        }
-        
-        .btn-reset {
-            background: linear-gradient(45deg, #00ff9d, #00cc66);
-            color: #0a0a1a;
-            box-shadow: 0 0 10px #00ff9d;
-        }
-        
-        .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 0 20px currentColor;
-        }
-        
-        .instructions {
-            margin-top: 30px;
-            text-align: center;
-            color: #a0a0ff;
-            font-size: 1.1rem;
-            line-height: 1.6;
-            max-width: 800px;
-        }
-        
-        .game-status {
-            font-size: 1.5rem;
-            color: #ff5555;
-            text-align: center;
-            margin: 15px 0;
-            min-height: 30px;
-            text-shadow: 0 0 10px #ff5555;
-        }
-        
-        .footer {
-            margin-top: 30px;
-            text-align: center;
-            color: #6666ff;
-            font-size: 0.9rem;
-            padding: 20px;
-            border-top: 1px solid #333366;
-            width: 100%;
-        }
-        
-        @media (max-width: 768px) {
-            .container {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .side-panel {
-                width: 100%;
-                max-width: 500px;
-            }
-            
-            h1 {
-                font-size: 2.5rem;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1>赛博朋克俄罗斯方块</h1>
-        <div class="game-status" id="game-status">准备开始</div>
-    </div>
+      }
+    }
+  </script>
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .glass {
+        @apply bg-white/10 backdrop-blur-md border border-white/20 shadow-lg;
+      }
+      .glass-dark {
+        @apply bg-black/10 backdrop-blur-md border border-white/10 shadow-lg;
+      }
+      .text-shadow {
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .transition-all-300 {
+        @apply transition-all duration-300 ease-in-out;
+      }
+    }
+  </style>
+  <style>
+    body {
+      background-image: url('https://p9-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/81694b7a06464edebbca41bd54358abe.jpg~tplv-a9rns2rl98-image-qvalue.image?rcl=2025092214303776F17D9C0CA97F0D8D3F&rk3s=8e244e95&rrcfp=b669a9d6&x-expires=1758609037&x-signature=qUeZTiuU9TfxSpCC7RH6BMjPX7s%3D');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      min-height: 100vh;
+    }
     
-    <div class="container">
-        <div class="game-area">
-            <canvas id="game-canvas" width="300" height="600"></canvas>
-        </div>
-        
-        <div class="side-panel">
-            <div class="panel">
-                <h2>游戏信息</h2>
-                <div class="info-item">
-                    <span>分数:</span>
-                    <span class="info-value" id="score">0</span>
-                </div>
-                <div class="info-item">
-                    <span>等级:</span>
-                    <span class="info-value" id="level">1</span>
-                </div>
-                <div class="info-item">
-                    <span>行数:</span>
-                    <span class="info-value" id="lines">0</span>
-                </div>
-                <div class="info-item">
-                    <span>下一个:</span>
-                </div>
-                <div class="next-piece-container">
-                    <canvas id="next-piece-canvas" width="120" height="120"></canvas>
-                </div>
-            </div>
-            
-            <div class="panel">
-                <h2>控制说明</h2>
-                <div class="controls">
-                    <div class="control-key">左移<br><span>←</span></div>
-                    <div class="control-key">旋转<br><span>↑</span></div>
-                    <div class="control-key">右移<br><span>→</span></div>
-                    <div class="control-key">加速<br><span>↓</span></div>
-                    <div class="control-key">暂停<br><span>P</span></div>
-                    <div class="control-key">重置<br><span>R</span></div>
-                </div>
-            </div>
-            
-            <div class="panel">
-                <h2>游戏控制</h2>
-                <div class="buttons">
-                    <button class="btn btn-start" id="start-btn">开始游戏</button>
-                    <button class="btn btn-pause" id="pause-btn">暂停/继续</button>
-                    <button class="btn btn-reset" id="reset-btn">重新开始</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    .event {
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
     
-    <div class="instructions">
-        <p>传统俄罗斯方块规则 | 消除行数获得分数 | 等级提高速度加快 | 游戏结束无法放置新方块</p>
-    </div>
+    .event:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
     
-    <div class="footer">
-        赛博朋克风格俄罗斯方块 | 使用方向键控制 | 空格键快速下落
-    </div>
+    .calendar-day {
+      min-height: 120px;
+    }
+    
+    .sidebar-calendar .day {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.2s ease;
+    }
+    
+    .sidebar-calendar .day:hover:not(.empty) {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+    
+    .sidebar-calendar .day.active {
+      background-color: #3b82f6;
+      color: white;
+    }
+    
+    .sidebar-calendar .day.today {
+      border: 2px solid #3b82f6;
+    }
+    
+    .ai-assistant-container {
+      position: fixed;
+      bottom: 4px;
+      right: 4px;
+      z-index: 100;
+    }
+    
+    .ai-avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+      transition: all 0.3s ease;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .ai-avatar:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+    }
+    
+    .ai-avatar img {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    
+    .ai-assistant-popup {
+      position: absolute;
+      bottom: 70px;
+      right: 0;
+      width: 350px;
+      border-radius: 16px;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+      transform-origin: bottom right;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      opacity: 0;
+      transform: scale(0.9);
+      pointer-events: none;
+    }
+    
+    .ai-assistant-popup.show {
+      opacity: 1;
+      transform: scale(1);
+      pointer-events: auto;
+    }
+    
+    .ai-header {
+      background-color: '#0065FD';
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .ai-header-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .ai-header-info {
+      flex: 1;
+    }
+    
+    .ai-header-name {
+      font-weight: 600;
+      font-size: 16px;
+      color: white;
+    }
+    
+    .ai-header-status {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.8);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    
+    .ai-status-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10b981;
+    }
+    
+    .ai-chat-container {
+      padding: 16px;
+      height: 250px;
+      overflow-y: auto;
+    }
+    
+    .ai-message {
+      margin-bottom: 16px;
+      display: flex;
+      gap: 10px;
+    }
+    
+    .ai-message-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    
+    .ai-message-bubble {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      padding: 12px 16px;
+      max-width: 80%;
+      color: white;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+    
+    .user-message {
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+    
+    .user-message-bubble {
+      background: #3b82f6;
+      border-radius: 18px 18px 0 18px;
+      padding: 12px 16px;
+      max-width: 80%;
+      color: white;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+    
+    .ai-input-container {
+      padding: 12px 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .ai-input {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 10px 16px;
+      color: white;
+      font-size: 14px;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+    
+    .ai-input:focus {
+      border-color: #3b82f6;
+      background: rgba(255, 255, 255, 0.1);
+    }
+    
+    .ai-send-button {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #3b82f6;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .ai-send-button:hover {
+      background: #2563eb;
+      transform: scale(1.05);
+    }
+    
+    .ai-features {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+    
+    .ai-feature-button {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 6px 12px;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.8);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .ai-feature-button:hover {
+      background: rgba(59, 130, 246, 0.2);
+      border-color: #3b82f6;
+      color: white;
+    }
+    
+    .typing-animation::after {
+      content: '|';
+      animation: blink 1s infinite;
+    }
+    
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+    
+    .week-view .time-slot {
+      height: 60px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .week-view .event {
+      position: absolute;
+      left: 0;
+      right: 0;
+      margin: 0 10px;
+      border-radius: 8px;
+      padding: 8px;
+      color: white;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      z-index: 10;
+    }
+    
+    .week-view .event-container {
+      position: relative;
+      height: 60px;
+    }
+    
 
-    <script>
-        // 游戏常量
-        const COLS = 10;
-        const ROWS = 20;
-        const BLOCK_SIZE = 30;
-        const COLORS = [
-            null,
-            '#00F3FF', // I - 青色
-            '#0066FF', // J - 蓝色
-            '#FF6600', // L - 橙色
-            '#FFFF00', // O - 黄色
-            '#00FF66', // S - 绿色
-            '#9900FF', // T - 紫色
-            '#FF0066'  // Z - 红色
-        ];
+    
+    .modal {
+      transition: opacity 0.3s ease;
+    }
+    
+    .modal-content {
+      transition: transform 0.3s ease;
+    }
+    
+    .modal.hidden .modal-content {
+      transform: scale(0.95);
+    }
+    
+    .modal:not(.hidden) .modal-content {
+      transform: scale(1);
+    }
+  </style>
+</head>
+<body class="font-sans text-white">
+  <div class="min-h-screen flex flex-col">
+    <!-- 头部 -->
+    <header class="glass rounded-xl mx-4 mt-4 p-4 flex items-center justify-between animate-fade-in">
+      <div class="flex items-center">
+        <h1 class="text-2xl font-bold text-shadow">日历应用</h1>
+      </div>
+      
+      <div class="flex items-center flex-1 justify-end">
+        <div class="relative w-full max-w-sm mr-4">
+          <input type="text" placeholder="搜索..." class="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg py-2 px-4 pl-10 focus:outline-none focus:ring-2 focus:ring-white/50">
+          <i class="fa fa-search absolute left-3 top-3 text-white/70"></i>
+        </div>
+      </div>
+      
+      <div class="flex items-center space-x-4">
+        <div class="relative">
+          <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/code_assistant/8644202302414879a52ed33e5a5ee66e~tplv-a9rns2rl98-image.image?rcl=202509221407337E4E838744DF8FAAAA3C&amp;rk3s=8e244e95&amp;rrcfp=e75484ac&amp;x-expires=1759126054&amp;x-signature=FTg%2B1l8FJJWifs8n7dSS10PnxPs%3D" alt="用户头像" class="w-10 h-10 rounded-full object-cover border-2 border-white/30">
+          <span class="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></span>
+        </div>
+      </div>
+    </header>
+    
+    <!-- 主内容区 -->
+    <main class="flex-1 flex p-4 gap-3 mt-4">
+      <!-- 左侧边栏 -->
+      <aside class="w-64 glass rounded-xl p-4 flex flex-col animate-fade-in-delay-1">
+        <!-- 创建按钮 -->
+        <button class="bg-primary hover:bg-secondary text-white font-medium py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-all-300 mb-6">
+          <i class="fa fa-plus text-sm"></i>
+          
+          <span>创建日程</span>
+        </button>
         
-        // 方块形状定义
-        const SHAPES = [
-            null,
-            [
-                [0,0,0,0],
-                [1,1,1,1],
-                [0,0,0,0],
-                [0,0,0,0]
-            ], // I
-            [
-                [2,0,0],
-                [2,2,2],
-                [0,0,0]
-            ], // J
-            [
-                [0,0,3],
-                [3,3,3],
-                [0,0,0]
-            ], // L
-            [
-                [4,4],
-                [4,4]
-            ], // O
-            [
-                [0,5,5],
-                [5,5,0],
-                [0,0,0]
-            ], // S
-            [
-                [0,6,0],
-                [6,6,6],
-                [0,0,0]
-            ], // T
-            [
-                [7,7,0],
-                [0,7,7],
-                [0,0,0]
-            ]  // Z
-        ];
+        <!-- 迷你日历 -->
+        <div class="sidebar-calendar mb-6">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="font-medium text-lg">2025年7月</h3>
+            <div class="flex gap-2">
+              <button class="p-1 rounded hover:bg-white/20 transition-all-300">
+                <i class="fa fa-chevron-left"></i>
+              </button>
+              <button class="p-1 rounded hover:bg-white/20 transition-all-300">
+                <i class="fa fa-chevron-right"></i>
+              </button>
+            </div>
+          </div>
+          
+          <!-- 星期标题 -->
+          <div class="grid grid-cols-7 gap-1 mb-2 text-center text-sm text-white/70">
+            <div>日</div>
+            <div>一</div>
+            <div>二</div>
+            <div>三</div>
+            <div>四</div>
+            <div>五</div>
+            <div>六</div>
+          </div>
+          
+          <!-- 日期网格 -->
+          <div class="grid grid-cols-7 gap-1 text-center">
+            <!-- 第一行 -->
+            <div class="day empty"></div>
+            <div class="day empty"></div>
+            <div class="day">1</div>
+            <div class="day">2</div>
+            <div class="day">3</div>
+            <div class="day">4</div>
+            <div class="day">5</div>
+            
+            <!-- 第二行 -->
+            <div class="day">6</div>
+            <div class="day">7</div>
+            <div class="day">8</div>
+            <div class="day">9</div>
+            <div class="day">10</div>
+            <div class="day">11</div>
+            <div class="day">12</div>
+            
+            <!-- 第三行 -->
+            <div class="day">13</div>
+            <div class="day">14</div>
+            <div class="day">15</div>
+            <div class="day">16</div>
+            <div class="day">17</div>
+            <div class="day">18</div>
+            <div class="day">19</div>
+            
+            <!-- 第四行 -->
+            <div class="day">20</div>
+            <div class="day">21</div>
+            <div class="day">22</div>
+            <div class="day active today">23</div>
+            <div class="day">24</div>
+            <div class="day">25</div>
+            <div class="day">26</div>
+            
+            <!-- 第五行 -->
+            <div class="day">27</div>
+            <div class="day">28</div>
+            <div class="day">29</div>
+            <div class="day">30</div>
+            <div class="day">31</div>
+            <div class="day empty"></div>
+            <div class="day empty"></div>
+          </div>
+        </div>
         
-        // 游戏状态
-        let canvas, ctx, nextCanvas, nextCtx;
-        let board = [];
-        let score = 0;
-        let level = 1;
-        let lines = 0;
-        let gameOver = false;
-        let isPaused = false;
-        let dropCounter = 0;
-        let dropInterval = 1000; // 初始下落间隔(毫秒)
-        let lastTime = 0;
+        <!-- 我的日历 -->
+        <div class="mt-auto">
+          <h3 class="font-medium text-lg mb-4">我的日历</h3>
+          <ul class="space-y-3">
+            <li class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <span class="w-3 h-3 rounded-full bg-primary"></span>
+                <span>个人</span>
+              </div>
+              <span class="text-white/70">12</span>
+            </li>
+            <li class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <span class="w-3 h-3 rounded-full bg-event1"></span>
+                <span>工作</span>
+              </div>
+              <span class="text-white/70">8</span>
+            </li>
+            <li class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <span class="w-3 h-3 rounded-full bg-event2"></span>
+                <span>家庭</span>
+              </div>
+              <span class="text-white/70">5</span>
+            </li>
+            <li class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <span class="w-3 h-3 rounded-full bg-event3"></span>
+                <span>重要</span>
+              </div>
+              <span class="text-white/70">3</span>
+            </li>
+          </ul>
+        </div>
+      </aside>
+      
+      <!-- 主日历区域 -->
+      <section class="flex-1 glass rounded-xl p-4 flex flex-col animate-fade-in-delay-2">
+        <!-- 日历导航 -->
+        <div class="flex justify-between items-center mb-6">
+          <div class="flex items-center gap-4">
+            <button class="bg-primary hover:bg-secondary text-white py-2 px-4 rounded-lg transition-all-300">今天</button>
+            <div class="flex items-center gap-2">
+              <button class="p-2 rounded hover:bg-white/20 transition-all-300">
+                <i class="fa fa-chevron-left"></i>
+              </button>
+              <h2 class="text-xl font-medium">2025年7月</h2>
+              <button class="p-2 rounded hover:bg-white/20 transition-all-300">
+                <i class="fa fa-chevron-right"></i>
+              </button>
+            </div>
+          </div>
+          
+          <div class="flex gap-2">
+            <button class="view-toggle py-2 px-4 rounded-lg bg-white/20 hover:bg-white/30 transition-all-300" data-view="day">日</button>
+            <button class="view-toggle py-2 px-4 rounded-lg bg-primary hover:bg-secondary transition-all-300" data-view="week">周</button>
+            <button class="view-toggle py-2 px-4 rounded-lg bg-white/20 hover:bg-white/30 transition-all-300" data-view="month">月</button>
+          </div>
+        </div>
         
-        // 当前方块和下一个方块
-        let player = {
-            pos: {x: 0, y: 0},
-            matrix: null,
-            score: 0
-        };
+        <!-- 周视图 -->
+        <div class="week-view flex-1 overflow-auto">
+          <!-- 日期标题 -->
+          <div class="grid grid-cols-8 gap-1 mb-1">
+            <div class="text-right pr-2 py-2 text-sm font-medium">时间</div>
+            <div class="text-center py-2 text-sm font-medium">周一 7/21</div>
+            <div class="text-center py-2 text-sm font-medium">周二 7/22</div>
+            <div class="text-center py-2 text-sm font-medium bg-white/20 rounded-lg">周三 7/23</div>
+            <div class="text-center py-2 text-sm font-medium">周四 7/24</div>
+            <div class="text-center py-2 text-sm font-medium">周五 7/25</div>
+            <div class="text-center py-2 text-sm font-medium">周六 7/26</div>
+            <div class="text-center py-2 text-sm font-medium">周日 7/27</div>
+          </div>
+          
+          <!-- 时间 slots -->
+          <div class="grid grid-cols-8 gap-1">
+            <!-- 时间列 -->
+            <div class="text-right pr-2 text-sm text-white/70">
+              <div class="time-slot flex items-center justify-end h-16">8:00</div>
+              <div class="time-slot flex items-center justify-end h-16">9:00</div>
+              <div class="time-slot flex items-center justify-end h-16">10:00</div>
+              <div class="time-slot flex items-center justify-end h-16">11:00</div>
+              <div class="time-slot flex items-center justify-end h-16">12:00</div>
+              <div class="time-slot flex items-center justify-end h-16">13:00</div>
+              <div class="time-slot flex items-center justify-end h-16">14:00</div>
+              <div class="time-slot flex items-center justify-end h-16">15:00</div>
+              <div class="time-slot flex items-center justify-end h-16">16:00</div>
+            </div>
+            
+            <!-- 周一 -->
+            <div class="border-l border-white/10">
+              <div class="event-container relative h-16"></div>
+              <div class="event-container relative h-16">
+                <div class="event bg-event1" style="top: 0; height: 100%;" data-event="1">
+                  <div class="font-medium">团队会议</div>
+                  <div class="text-xs opacity-80">9:00 - 10:00</div>
+                </div>
+              </div>
+              <div class="event-container relative h-16"></div>
+              <div class="event-container relative h-16"></div>
+              <div class="event-container relative h-16">
+                <div class="event bg-event3" style="top: 0; height: 100%;" data-event="2">
+                  <div class="font-medium">午餐约会</div>
+                  <div class="text-xs opacity-80">12:00 - 13:00</div>
+                </div>
+              </div>
+              <div class="event-container relative h-16"></div>
+              <div class="event-container relative h-16">
+                <div class="event bg-event2" style="top: 0; height: 100%;" data-event="3">
+                  <div class="font-medium">客户电话</div>
+                  <div class="text-xs opacity-80">14:00 - 15:00</div>
+                </div>
+              </div>
+              <div class="event-container relative h-16"></div>
+              <div class="event-container relative h-16"></div>
+            </div>
+            
+            <!-- 周二 -->
+            <div class="border-l border-white/10">
+              <div class="event-container relative h-16"></div>
+              <div class="event-container relative h-16"></div>
+              <div class="event-container relative h-16">
+                <div class="event bg-event4" style="top: 0; height: 100%;" data-event="4">
+                  <div class="font-medium">项目进度</div>
+                  <div class="text-xs opacity-80">10:00 - 11:00</div>
+                </div>
+              </div>
+              <div class="event-container relative h-16"></div>
+              <div class="event-container relative h-16"></div>
+              <div class="event-container relative h-16">
+                <div class="event bg-event5" style="top: 0; height: 100%;" data-event="5">
+                  <div class="font-medium">设计评审</div>
+                  <div class="text-xs opacity-80">13:00 - 14:00</div>
+                </div>
+              </div>
+              <div class="event-container relative h-16"></div>
+              <div class="event-container relative h-16">
+                <div class="event bg-event6" style="top: 0; height: 100%;" data-event="6">
+                  <div class="font-medium">健身</div>
+                  <div class="text-xs opacity-80">15:00 - 16:00</div>
+                </div>
+              </div>
+              <div class="event-container relative h-16"></div>
+            </div>
+            
+            <!-- 周三 -->
+            <div class="border-l border-white/10 bg-white/5">
+              <div class="event-container relative h-16">
+                <div class="event bg-event7" style="top: 0; height: 100%;" data-event="7">
+                  <div class="font-medium">早会</div>
+                  <div class="text-xs opacity-80">8:00 - 9:00</div>
+                </div>
+              </div>
+              <div class="event-container relative h-16"></div>
+              <div class="event-container relative h-16"></div>
+              <div class="event-container relative h-16">
+                <div class="event bg-event1" style="top: 0; height: 100%;" data-event="8">
+                  <div class="font-medium">团队会议</div>
+                  <div class="text-xs opacity-80">11:00 - 12:00</div>
+                </div>
+              </div>
+              <div class="event-container relative h-16"></div>
+              <div class="event-container relative h-16"></div>
+              <div class="event-container relative h-16">
+                <div class="event bg-event8" style="top: 0; height: 100%;" data-event="9">
+                  <div class="font-medium">培训</div>
+                  <div class="text-xs opacity-80">14:00 - 15:00</div>
+                </div>
+              </div>
+              <div class="event-container relative h-16"></div>
+              <div class="event-container relative h-16">
+                <div class="event bg-event2" style="top: 0; height: 100%;" data-event="10">
+                  <div class="font-medium">客户会议</div>
+                  <div class="text-xs opacity-80">16:00 - 17:00</div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- 周四 -->
+            <div class="border-l border-white/10">
+              <div class="event-container relative h-16"></div>
+              <div class="event-container relative h-16">
+                <div class="event bg-event3" style="top: 0; height: 100%;" data-event="11">
+                  <div class="font-medium">规划会议</div>
+                  <div class="text-xs opacity-80">9:00 - 10:00</div>
+                </div>
+              </div>
+              <div class="event-container relative h-16"></div>
+              <div class="event-container relative h-16"></div>
+              <div class="event-container relative h-16"></div>
+              <div class="event-container relative h-16"></div>
+              <div class="event-container relative h-16">
+                <div class="event bg-event4" style="top: 0; height: 100%;" data-event="12">
+                  <div class="font-medium">团队建设</div>
+                  <div class="text-xs opacity-80">14:00 - 15:00</div>
+                </div>
+              </div>
+              <div class="event-container relative h-16"></div>
+              <div class="event-container relative h-16"></div>
+            </div>
+            
+            <!-- 周五 -->
+            <div class="border-l border-white/10">
+              <div class="event-container relative h-16"></div>
+              <div class="event-container relative h-16"></div>
+              <div class="event-container relative h-16">
+                <div class="event bg-event5" style="top: 0; height: 100%;" data-event="13">
+                  <div class="font-medium">进度报告</div>
+                  <div class="text-xs opacity-80">10:00 - 11:00</div>
+                </div>
+              </div>
+              <div class="event-container relative h-16"></div>
+              <div class="event-container relative h-16">
+                <div class="event bg-event6" style="top: 0; height: 100%;" data-event="14">
+                  <div class="font-medium">午餐</div>
+                  <div class="text-xs opacity-80">12:00 - 13:00</div>
+                </div>
+              </div>
+              <div class="event-container relative h-16"></div>
+              <div class="event-container relative h-16"></div>
+              <div class="event-container relative h-16">
+                <div class="event bg-event7" style="top: 0; height: 100%;" data-event="15">
+                  <div class="font-medium">周末计划</div>
+                  <div class="text-xs opacity-80">15:00 - 16:00</div>
+                </div>
+              </div>
+              <div class="event-container relative h-16"></div>
+            </div>
+            
+            <!-- 周六 -->
+            <div class="border-l border-white/10">
+              <div class="event-container relative h-16"></div>
+              <div class="event-container relative h-16"></div>
+              <div class="event-container relative h-16"></div>
+              <div class="event-container relative h-16"></div>
+              <div class="event-container relative h-16">
+                <div class="event bg-event8" style="top: 0; height: 100%;" data-event="16">
+                  <div class="font-medium">午餐约会</div>
+                  <div class="text-xs opacity-80">12:00 - 13:00</div>
+                </div>
+              </div>
+              <div class="event-container relative h-16"></div>
+              <div class="event-container relative h-16"></div>
+              <div class="event-container relative h-16"></div>
+              <div class="event-container relative h-16"></div>
+            </div>
+            
+            <!-- 周日 -->
+            <div class="border-l border-white/10">
+              <div class="event-container relative h-16"></div>
+              <div class="event-container relative h-16"></div>
+              <div class="event-container relative h-16"></div>
+              <div class="event-container relative h-16"></div>
+              <div class="event-container relative h-16"></div>
+              <div class="event-container relative h-16"></div>
+              <div class="event-container relative h-16">
+                <div class="event bg-event1" style="top: 0; height: 100%;" data-event="17">
+                  <div class="font-medium">家庭聚餐</div>
+                  <div class="text-xs opacity-80">14:00 - 15:00</div>
+                </div>
+              </div>
+              <div class="event-container relative h-16"></div>
+              <div class="event-container relative h-16"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    
+      <div class="ai-assistant-container">
+      <!-- AI头像（收起状态） -->
+      <div id="ai-avatar" class="ai-avatar">
+        <img src="https://p9-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/79fd060792db4b858a7607ffab8916f7.png~tplv-a9rns2rl98-image-qvalue.image?rcl=20250922161207AE4713E02B03673981D8&amp;rk3s=8e244e95&amp;rrcfp=b669a9d6&amp;x-expires=1758615127&amp;x-signature=fLP7fRijiZpLbzYIV3xdbHVAc8U%3D" alt="AI助手">
+      </div>
+      
+      <!-- AI助手弹窗（展开状态） -->
+      <div id="ai-assistant" class="ai-assistant-popup">
+        <!-- 头部 -->
+        <div class="ai-header flex justify-between items-center">
+          <div class="ai-header-info">
+            <div class="ai-header-name">智能日历助手</div>
+            <div class="ai-header-status">
+              <span class="ai-status-indicator"></span>
+              <span>在线</span>
+            </div>
+          </div>
+          <button id="close-ai" class="text-white hover:text-gray-200 transition-colors">
+            <i class="fa fa-times"></i>
+          </button>
+        </div>
         
-        let nextPiece = null;
+        <!-- 聊天内容区 -->
+        <div class="ai-chat-container">
+          <div class="ai-message">
+            <div class="ai-message-bubble w-full">
+              您好！我是您的智能日历助手。我可以帮您查看日程、创建事件、设置提醒等。有什么可以帮您的吗？
+            </div>
+          </div>
+          
+          <!-- 快速功能按钮 -->
+          <div class="ai-features">
+            <div class="ai-feature-button" data-feature="view-today">查看今日日程</div>
+            <div class="ai-feature-button" data-feature="create-event">创建新事件</div>
+            <div class="ai-feature-button" data-feature="set-reminder">设置提醒</div>
+          </div>
+        </div>
         
-        // 初始化游戏板
-        function createMatrix(w, h) {
-            const matrix = [];
-            while (h--) {
-                matrix.push(new Array(w).fill(0));
-            }
-            return matrix;
+        <!-- 输入区 -->
+        <div class="ai-input-container">
+          <input type="text" id="ai-input" class="ai-input" placeholder="输入您的问题...">
+          <button id="ai-send" class="ai-send-button">
+            <i class="fa fa-paper-plane"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    
+
+    
+    <!-- 事件详情模态框 -->
+    <div id="event-modal" class="modal fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+      <div class="modal-content glass-dark rounded-xl p-6 w-full max-w-md">
+        <div class="flex justify-between items-center mb-6">
+          <h3 id="event-title" class="text-xl font-bold">团队会议</h3>
+          <button id="close-modal" class="p-1 rounded-full hover:bg-white/20 transition-all-300">
+            <i class="fa fa-times"></i>
+          </button>
+        </div>
+        
+        <div class="space-y-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-event1 flex items-center justify-center">
+              <i class="fa fa-calendar text-white"></i>
+            </div>
+            <div>
+              <p class="text-sm text-white/70">时间</p>
+              <p id="event-time" class="font-medium">2025年7月23日 11:00 - 12:00</p>
+            </div>
+          </div>
+          
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-event2 flex items-center justify-center">
+              <i class="fa fa-map-marker text-white"></i>
+            </div>
+            <div>
+              <p class="text-sm text-white/70">地点</p>
+              <p id="event-location" class="font-medium">会议室 A</p>
+            </div>
+          </div>
+          
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-event3 flex items-center justify-center">
+              <i class="fa fa-users text-white"></i>
+            </div>
+            <div>
+              <p class="text-sm text-white/70">参与者</p>
+              <p id="event-participants" class="font-medium">张明, 李华, 王芳</p>
+            </div>
+          </div>
+          
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 rounded-full bg-event4 flex items-center justify-center mt-1">
+              <i class="fa fa-file-text text-white"></i>
+            </div>
+            <div>
+              <p class="text-sm text-white/70">描述</p>
+              <p id="event-description" class="font-medium">讨论本周工作进展和下周计划，准备项目进度报告。</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="mt-6 flex gap-3">
+          <button class="flex-1 bg-white/10 hover:bg-white/20 text-white py-2 px-4 rounded-lg transition-all-300">
+            <i class="fa fa-pencil mr-2"></i> 编辑
+          </button>
+          <button class="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-lg transition-all-300">
+            <i class="fa fa-trash mr-2"></i> 删除
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 事件数据
+    const events = [
+      {
+        id: 1,
+        title: "团队会议",
+        time: "2025年7月21日 9:00 - 10:00",
+        location: "会议室 A",
+        participants: "张明, 李华, 王芳",
+        description: "讨论本周工作进展和下周计划，准备项目进度报告。",
+        color: "event1"
+      },
+      {
+        id: 2,
+        title: "午餐约会",
+        time: "2025年7月21日 12:00 - 13:00",
+        location: "餐厅 B",
+        participants: "李华",
+        description: "讨论项目合作细节，确定下一步行动计划。",
+        color: "event3"
+      },
+      {
+        id: 3,
+        title: "客户电话",
+        time: "2025年7月21日 14:00 - 15:00",
+        location: "线上",
+        participants: "客户代表",
+        description: "沟通项目需求变更，协商解决方案。",
+        color: "event2"
+      },
+      {
+        id: 4,
+        title: "项目进度",
+        time: "2025年7月22日 10:00 - 11:00",
+        location: "会议室 C",
+        participants: "项目团队",
+        description: "检查项目进度，解决遇到的问题和挑战。",
+        color: "event4"
+      },
+      {
+        id: 5,
+        title: "设计评审",
+        time: "2025年7月22日 13:00 - 14:00",
+        location: "设计室",
+        participants: "设计团队, 产品经理",
+        description: "评审新功能设计方案，收集反馈意见。",
+        color: "event5"
+      },
+      {
+        id: 6,
+        title: "健身",
+        time: "2025年7月22日 15:00 - 16:00",
+        location: "健身房",
+        participants: "个人",
+        description: "保持身体健康，提高工作效率。",
+        color: "event6"
+      },
+      {
+        id: 7,
+        title: "早会",
+        time: "2025年7月23日 8:00 - 9:00",
+        location: "会议室 A",
+        participants: "全体员工",
+        description: "每日例行会议，同步公司最新动态。",
+        color: "event7"
+      },
+      {
+        id: 8,
+        title: "团队会议",
+        time: "2025年7月23日 11:00 - 12:00",
+        location: "会议室 A",
+        participants: "张明, 李华, 王芳",
+        description: "讨论本周工作进展和下周计划，准备项目进度报告。",
+        color: "event1"
+      },
+      {
+        id: 9,
+        title: "培训",
+        time: "2025年7月23日 14:00 - 15:00",
+        location: "培训室",
+        participants: "部门员工",
+        description: "新工具使用培训，提高工作效率。",
+        color: "event8"
+      },
+      {
+        id: 10,
+        title: "客户会议",
+        time: "2025年7月23日 16:00 - 17:00",
+        location: "客户办公室",
+        participants: "客户团队, 项目团队",
+        description: "项目演示和进度汇报，收集客户反馈。",
+        color: "event2"
+      }
+    ];
+    
+    // DOM 加载完成后执行
+    document.addEventListener('DOMContentLoaded', function() {
+      // AI 助手交互
+      const aiAvatar = document.getElementById('ai-avatar');
+      const aiAssistant = document.getElementById('ai-assistant');
+      const closeAi = document.getElementById('close-ai');
+      const aiInput = document.getElementById('ai-input');
+      const aiSend = document.getElementById('ai-send');
+      const aiChatContainer = document.querySelector('.ai-chat-container');
+      
+      // 显示/隐藏 AI 助手
+      function toggleAiAssistant() {
+        aiAssistant.classList.toggle('show');
+      }
+      
+      // 点击 AI 头像显示/隐藏助手
+      aiAvatar.addEventListener('click', toggleAiAssistant);
+      
+      // 点击关闭按钮隐藏助手
+      closeAi.addEventListener('click', function(e) {
+        e.stopPropagation();
+        aiAssistant.classList.remove('show');
+      });
+      
+      // 3秒后自动显示 AI 助手
+      setTimeout(function() {
+        aiAssistant.classList.add('show');
+      }, 3000);
+      
+      // 发送消息
+      function sendMessage() {
+        const message = aiInput.value.trim();
+        if (message) {
+          // 添加用户消息
+          addUserMessage(message);
+          
+          // 清空输入框
+          aiInput.value = '';
+          
+          // 模拟 AI 回复
+          setTimeout(function() {
+            const response = getAiResponse(message);
+            addAiMessage(response);
+          }, 1000);
         }
+      }
+      
+      // 添加用户消息到聊天窗口
+      function addUserMessage(message) {
+        const userMessageDiv = document.createElement('div');
+        userMessageDiv.className = 'user-message';
+        userMessageDiv.innerHTML = `
+          <div class="user-message-bubble">${message}</div>
+        `;
+        aiChatContainer.appendChild(userMessageDiv);
+        aiChatContainer.scrollTop = aiChatContainer.scrollHeight;
+      }
+      
+      // 添加 AI 消息到聊天窗口
+      function addAiMessage(message) {
+        const aiMessageDiv = document.createElement('div');
+        aiMessageDiv.className = 'ai-message';
+        aiMessageDiv.innerHTML = `
+          <div class="ai-message-bubble">${message}</div>
+        `;
+        aiChatContainer.appendChild(aiMessageDiv);
+        aiChatContainer.scrollTop = aiChatContainer.scrollHeight;
+      }
+      
+      // 模拟 AI 回复
+      function getAiResponse(message) {
+        message = message.toLowerCase();
         
-        // 创建随机方块
-        function createPiece(type) {
-            const pieceType = type || Math.floor(Math.random() * 7) + 1;
-            return {
-                matrix: SHAPES[pieceType],
-                type: pieceType
-            };
+        if (message.includes('你好') || message.includes('hi') || message.includes('hello')) {
+          return '您好！我是您的智能日历助手。有什么可以帮您的吗？';
+        } else if (message.includes('今日') || message.includes('今天') || message.includes('日程')) {
+          return '您今天有以下日程安排：\n1. 早会 (8:00 - 9:00)\n2. 团队会议 (11:00 - 12:00)\n3. 培训 (14:00 - 15:00)\n4. 客户会议 (16:00 - 17:00)';
+        } else if (message.includes('创建') || message.includes('添加') || message.includes('事件')) {
+          return '您可以点击左侧的"创建"按钮来添加新事件，或者告诉我您想创建的事件详情，我可以帮您快速创建。';
+        } else if (message.includes('提醒') || message.includes('闹钟')) {
+          return '您可以为任何事件设置提醒。需要我帮您设置哪个事件的提醒吗？';
+        } else if (message.includes('帮助') || message.includes('功能')) {
+          return '我可以帮您：\n- 查看日程安排\n- 创建和编辑事件\n- 设置提醒\n- 搜索特定事件\n- 提供会议建议\n您可以直接告诉我您需要什么帮助。';
+        } else {
+          return '抱歉，我不太理解您的意思。您可以询问我关于日程安排、事件创建或提醒设置的问题，我会尽力帮助您。';
         }
-        
-        // 绘制单个方块
-        function drawBlock(ctx, x, y, color) {
-            const blockSize = BLOCK_SIZE;
-            
-            // 方块主体
-            ctx.fillStyle = color;
-            ctx.fillRect(x * blockSize, y * blockSize, blockSize, blockSize);
-            
-            // 方块边框
-            ctx.strokeStyle = '#FFFFFF';
-            ctx.lineWidth = 1;
-            ctx.strokeRect(x * blockSize, y * blockSize, blockSize, blockSize);
-            
-            // 内部高光效果
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
-            ctx.fillRect(x * blockSize + 2, y * blockSize + 2, blockSize - 4, 8);
-            ctx.fillRect(x * blockSize + 2, y * blockSize + 2, 8, blockSize - 4);
-            
-            // 外部发光效果
-            ctx.shadowColor = color;
-            ctx.shadowBlur = 10;
-            ctx.strokeStyle = color;
-            ctx.lineWidth = 2;
-            ctx.strokeRect(x * blockSize, y * blockSize, blockSize, blockSize);
-            ctx.shadowBlur = 0;
+      }
+      
+      // 点击发送按钮发送消息
+      aiSend.addEventListener('click', sendMessage);
+      
+      // 按回车键发送消息
+      aiInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          sendMessage();
         }
-        
-        // 绘制游戏板
-        function drawBoard() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // 绘制已落下的方块
-            board.forEach((row, y) => {
-                row.forEach((value, x) => {
-                    if (value !== 0) {
-                        drawBlock(ctx, x, y, COLORS[value]);
-                    }
-                });
-            });
-            
-            // 绘制当前方块
-            if (player.matrix) {
-                player.matrix.forEach((row, y) => {
-                    row.forEach((value, x) => {
-                        if (value !== 0) {
-                            drawBlock(ctx, x + player.pos.x, y + player.pos.y, COLORS[value]);
-                        }
-                    });
-                });
-            }
-            
-            // 绘制网格线
-            ctx.strokeStyle = 'rgba(0, 243, 255, 0.1)';
-            ctx.lineWidth = 1;
-            
-            // 垂直线
-            for (let x = 0; x <= COLS; x++) {
-                ctx.beginPath();
-                ctx.moveTo(x * BLOCK_SIZE, 0);
-                ctx.lineTo(x * BLOCK_SIZE, canvas.height);
-                ctx.stroke();
-            }
-            
-            // 水平线
-            for (let y = 0; y <= ROWS; y++) {
-                ctx.beginPath();
-                ctx.moveTo(0, y * BLOCK_SIZE);
-                ctx.lineTo(canvas.width, y * BLOCK_SIZE);
-                ctx.stroke();
-            }
-        }
-        
-        // 绘制下一个方块预览
-        function drawNextPiece() {
-            nextCtx.clearRect(0, 0, nextCanvas.width, nextCanvas.height);
-            
-            if (!nextPiece) return;
-            
-            const matrix = nextPiece.matrix;
-            const offsetX = (4 - matrix[0].length) / 2;
-            const offsetY = (4 - matrix.length) / 2;
-            
-            matrix.forEach((row, y) => {
-                row.forEach((value, x) => {
-                    if (value !== 0) {
-                        const color = COLORS[value];
-                        nextCtx.fillStyle = color;
-                        nextCtx.fillRect(
-                            (x + offsetX) * 25, 
-                            (y + offsetY) * 25, 
-                            24, 24
-                        );
-                        
-                        nextCtx.strokeStyle = '#FFFFFF';
-                        nextCtx.lineWidth = 1;
-                        nextCtx.strokeRect(
-                            (x + offsetX) * 25, 
-                            (y + offsetY) * 25, 
-                            24, 24
-                        );
-                        
-                        // 发光效果
-                        nextCtx.shadowColor = color;
-                        nextCtx.shadowBlur = 8;
-                        nextCtx.strokeStyle = color;
-                        nextCtx.lineWidth = 1;
-                        nextCtx.strokeRect(
-                            (x + offsetX) * 25, 
-                            (y + offsetY) * 25, 
-                            24, 24
-                        );
-                        nextCtx.shadowBlur = 0;
-                    }
-                });
-            });
-        }
-        
-        // 碰撞检测
-        function collide(board, player) {
-            const [m, o] = [player.matrix, player.pos];
-            for (let y = 0; y < m.length; ++y) {
-                for (let x = 0; x < m[y].length; ++x) {
-                    if (m[y][x] !== 0 &&
-                        (board[y + o.y] &&
-                         board[y + o.y][x + o.x]) !== 0) {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-        
-        // 合并方块到游戏板
-        function merge(board, player) {
-            player.matrix.forEach((row, y) => {
-                row.forEach((value, x) => {
-                    if (value !== 0) {
-                        board[y + player.pos.y][x + player.pos.x] = value;
-                    }
-                });
-            });
-        }
-        
-        // 旋转方块
-        function rotate(matrix, dir) {
-            for (let y = 0; y < matrix.length; ++y) {
-                for (let x = 0; x < y; ++x) {
-                    [
-                        matrix[x][y],
-                        matrix[y][x]
-                    ] = [
-                        matrix[y][x],
-                        matrix[x][y]
-                    ];
-                }
-            }
-            
-            if (dir > 0) {
-                matrix.forEach(row => row.reverse());
-            } else {
-                matrix.reverse();
-            }
-        }
-        
-        // 玩家旋转
-        function playerRotate(dir) {
-            if (isPaused || gameOver) return;
-            
-            const pos = player.pos.x;
-            let offset = 1;
-            rotate(player.matrix, dir);
-            
-            while (collide(board, player)) {
-                player.pos.x += offset;
-                offset = -(offset + (offset > 0 ? 1 : -1));
-                if (offset > player.matrix[0].length) {
-                    rotate(player.matrix, -dir);
-                    player.pos.x = pos;
-                    return;
-                }
-            }
-            
-            drawBoard();
-        }
-        
-        // 玩家移动
-        function playerMove(dir) {
-            if (isPaused || gameOver) return;
-            
-            player.pos.x += dir;
-            if (collide(board, player)) {
-                player.pos.x -= dir;
-                return false;
-            }
-            drawBoard();
-            return true;
-        }
-        
-        // 玩家下落
-        function playerDrop() {
-            if (isPaused || gameOver) return;
-            
-            player.pos.y++;
-            if (collide(board, player)) {
-                player.pos.y--;
-                merge(board, player);
-                resetPlayer();
-                sweep();
-                updateScore();
-            }
-            dropCounter = 0;
-            drawBoard();
-        }
-        
-        // 玩家快速下落
-        function playerDropToBottom() {
-            if (isPaused || gameOver) return;
-            
-            while (!collide(board, player)) {
-                player.pos.y++;
-            }
-            player.pos.y--;
-            playerDrop();
-        }
-        
-        // 消除完整的行
-        function sweep() {
-            let rowCount = 0;
-            
-            outer: for (let y = board.length - 1; y >= 0; --y) {
-                for (let x = 0; x < board[y].length; ++x) {
-                    if (board[y][x] === 0) {
-                        continue outer;
-                    }
-                }
-                
-                const row = board.splice(y, 1)[0].fill(0);
-                board.unshift(row);
-                ++y;
-                rowCount++;
-            }
-            
-            if (rowCount > 0) {
-                lines += rowCount;
-                
-                // 计算得分
-                const linePoints = [0, 40, 100, 300, 1200];
-                score += linePoints[rowCount] * level;
-                
-                // 每消除10行升一级
-                level = Math.floor(lines / 10) + 1;
-                
-                // 随着等级提高，下落速度加快
-                dropInterval = Math.max(100, 1000 - (level - 1) * 50);
-                
-                updateDisplay();
-                
-                // 添加消除效果
-                if (rowCount === 4) {
-                    document.getElementById('game-status').textContent = '四连消除！';
-                    setTimeout(() => {
-                        if (!gameOver) {
-                            document.getElementById('game-status').textContent = '';
-                        }
-                    }, 1000);
-                }
-            }
-        }
-        
-        // 重置玩家方块
-        function resetPlayer() {
-            player.matrix = nextPiece ? nextPiece.matrix : createPiece().matrix;
-            player.pos.y = 0;
-            player.pos.x = Math.floor(COLS / 2) - Math.floor(player.matrix[0].length / 2);
-            
-            // 生成下一个方块
-            nextPiece = createPiece();
-            drawNextPiece();
-            
-            // 检查游戏是否结束
-            if (collide(board, player)) {
-                gameOver = true;
-                document.getElementById('game-status').textContent = '游戏结束！';
-                document.getElementById('start-btn').textContent = '重新开始';
-            }
-        }
-        
-        // 更新显示
-        function updateDisplay() {
-            document.getElementById('score').textContent = score;
-            document.getElementById('level').textContent = level;
-            document.getElementById('lines').textContent = lines;
-        }
-        
-        // 游戏循环
-        function update(time = 0) {
-            const deltaTime = time - lastTime;
-            lastTime = time;
-            
-            if (!isPaused && !gameOver) {
-                dropCounter += deltaTime;
-                if (dropCounter > dropInterval) {
-                    playerDrop();
-                }
-            }
-            
-            drawBoard();
-            requestAnimationFrame(update);
-        }
-        
-        // 初始化游戏
-        function init() {
-            canvas = document.getElementById('game-canvas');
-            ctx = canvas.getContext('2d');
-            nextCanvas = document.getElementById('next-piece-canvas');
-            nextCtx = nextCanvas.getContext('2d');
-            
-            // 初始化游戏板
-            board = createMatrix(COLS, ROWS);
-            
-            // 创建第一个和下一个方块
-            player.matrix = createPiece().matrix;
-            nextPiece = createPiece();
-            
-            // 设置初始位置
-            player.pos.y = 0;
-            player.pos.x = Math.floor(COLS / 2) - Math.floor(player.matrix[0].length / 2);
-            
-            // 重置游戏状态
-            score = 0;
-            level = 1;
-            lines = 0;
-            gameOver = false;
-            isPaused = false;
-            dropInterval = 1000;
-            
-            updateDisplay();
-            drawBoard();
-            drawNextPiece();
-            
-            document.getElementById('game-status').textContent = '准备开始';
-            document.getElementById('start-btn').textContent = '开始游戏';
-            
-            // 开始游戏循环
-            requestAnimationFrame(update);
-        }
-        
-        // 开始游戏
-        function startGame() {
-            if (gameOver) {
-                init();
-            }
-            isPaused = false;
-            document.getElementById('game-status').textContent = '游戏进行中';
-        }
-        
-        // 暂停/继续游戏
-        function togglePause() {
-            if (gameOver) return;
-            
-            isPaused = !isPaused;
-            document.getElementById('game-status').textContent = isPaused ? '游戏暂停' : '游戏进行中';
-        }
-        
-        // 重置游戏
-        function resetGame() {
-            init();
-        }
-        
-        // 键盘控制
-        document.addEventListener('keydown', event => {
-            if (gameOver && event.key !== 'r' && event.key !== 'R') return;
-            
-            switch(event.key) {
-                case 'ArrowLeft':
-                    event.preventDefault();
-                    playerMove(-1);
-                    break;
-                case 'ArrowRight':
-                    event.preventDefault();
-                    playerMove(1);
-                    break;
-                case 'ArrowDown':
-                    event.preventDefault();
-                    playerDrop();
-                    break;
-                case 'ArrowUp':
-                    event.preventDefault();
-                    playerRotate(1);
-                    break;
-                case ' ':
-                    event.preventDefault();
-                    playerDropToBottom();
-                    break;
-                case 'p':
-                case 'P':
-                    event.preventDefault();
-                    togglePause();
-                    break;
-                case 'r':
-                case 'R':
-                    event.preventDefault();
-                    resetGame();
-                    break;
-            }
+      });
+      
+      // 快速功能按钮点击事件
+      document.querySelectorAll('.ai-feature-button').forEach(function(button) {
+        button.addEventListener('click', function() {
+          const feature = this.getAttribute('data-feature');
+          
+          switch(feature) {
+            case 'view-today':
+              addUserMessage('查看今日日程');
+              setTimeout(function() {
+                addAiMessage('您今天有以下日程安排：\n1. 早会 (8:00 - 9:00)\n2. 团队会议 (11:00 - 12:00)\n3. 培训 (14:00 - 15:00)\n4. 客户会议 (16:00 - 17:00)');
+              }, 1000);
+              break;
+            case 'create-event':
+              addUserMessage('创建新事件');
+              setTimeout(function() {
+                addAiMessage('您可以点击左侧的"创建"按钮来添加新事件，或者告诉我您想创建的事件详情（如标题、时间、地点），我可以帮您快速创建。');
+              }, 1000);
+              break;
+            case 'set-reminder':
+              addUserMessage('设置提醒');
+              setTimeout(function() {
+                addAiMessage('您可以为任何事件设置提醒。需要我帮您设置哪个事件的提醒吗？例如："为下午3点的会议设置提醒"');
+              }, 1000);
+              break;
+          }
         });
+      });
+      
+      // 事件点击处理
+      document.querySelectorAll('.event').forEach(function(eventEl) {
+        eventEl.addEventListener('click', function() {
+          const eventId = parseInt(this.getAttribute('data-event'));
+          const event = events.find(e => e.id === eventId);
+          
+          if (event) {
+            document.getElementById('event-title').textContent = event.title;
+            document.getElementById('event-time').textContent = event.time;
+            document.getElementById('event-location').textContent = event.location;
+            document.getElementById('event-participants').textContent = event.participants;
+            document.getElementById('event-description').textContent = event.description;
+            
+            // 设置事件颜色
+            const modal = document.getElementById('event-modal');
+            modal.querySelector('.modal-content').style.borderLeft = `4px solid var(--tw-color-${event.color})`;
+            
+            // 显示模态框
+            modal.classList.remove('hidden');
+          }
+        });
+      });
+      
+      // 关闭事件详情模态框
+      document.getElementById('close-modal').addEventListener('click', function() {
+        document.getElementById('event-modal').classList.add('hidden');
+      });
+      
+      // 点击模态框外部关闭
+      document.getElementById('event-modal').addEventListener('click', function(e) {
+        if (e.target === this) {
+          this.classList.add('hidden');
+        }
+      });
+      
+      // 视图切换
+      document.querySelectorAll('.view-toggle').forEach(function(button) {
+        button.addEventListener('click', function() {
+          // 移除所有按钮的活动状态
+          document.querySelectorAll('.view-toggle').forEach(btn => {
+            btn.classList.remove('bg-primary', 'hover:bg-secondary');
+            btn.classList.add('bg-white/20', 'hover:bg-white/30');
+          });
+          
+          // 添加当前按钮的活动状态
+          this.classList.remove('bg-white/20', 'hover:bg-white/30');
+          this.classList.add('bg-primary', 'hover:bg-secondary');
+          
+          // 这里可以添加视图切换的逻辑
+          const viewType = this.getAttribute('data-view');
+          console.log(`切换到${viewType}视图`);
+          
+          // 模拟视图切换效果
+          const weekView = document.querySelector('.week-view');
+          weekView.classList.add('opacity-0');
+          
+          setTimeout(() => {
+            // 这里可以根据 viewType 加载不同的视图内容
+            weekView.classList.remove('opacity-0');
+          }, 300);
+        });
+      });
+      
+      // 日期点击处理
+      document.querySelectorAll('.sidebar-calendar .day:not(.empty)').forEach(function(day) {
+        day.addEventListener('click', function() {
+          // 移除所有日期的活动状态
+          document.querySelectorAll('.sidebar-calendar .day').forEach(d => {
+            d.classList.remove('active');
+          });
+          
+          // 添加当前日期的活动状态
+          this.classList.add('active');
+        });
+      });
+      
+
+      
+      // 搜索功能
+      const searchInput = document.querySelector('header input');
+      
+      searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          const searchTerm = this.value.trim();
+          if (searchTerm) {
+            console.log(`搜索: ${searchTerm}`);
+            // 这里可以添加搜索逻辑
+            
+            // 模拟搜索结果提示
+            alert(`搜索结果: ${searchTerm}`);
+          }
+        }
+      });
+      
+      // 创建按钮点击处理
+      const createButton = document.querySelector('aside button');
+      
+      createButton.addEventListener('click', function() {
+        console.log('创建新事件');
+        // 这里可以添加创建新事件的逻辑
         
-        // 按钮事件监听
-        document.getElementById('start-btn').addEventListener('click', startGame);
-        document.getElementById('pause-btn').addEventListener('click', togglePause);
-        document.getElementById('reset-btn').addEventListener('click', resetGame);
-        
-        // 初始化游戏
-        window.addEventListener('load', init);
-    </script>
-</body>
-</html>
+        // 模拟创建事件提示
+        alert('创建新事件');
+      });
+    });
+  </script>
+
+
+</body></html>
