@@ -1,1074 +1,1081 @@
-<!DOCTYPE html>
-<html lang="en">
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>iOS风格日历与待办事项</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/lucide@0.544.0/dist/umd/lucide.min.js"></script>
-    <style>
-        :root {
-            --primary-color: #007AFF;
-            --secondary-color: #5AC8FA;
-            --success-color: #34C759;
-            --danger-color: #FF3B30;
-            --warning-color: #FF9500;
-            --info-color: #5AC8FA;
-            --light-color: #F2F2F7;
-            --dark-color: #1C1C1E;
-            --text-color: #000000;
-            --text-secondary: #8E8E93;
-            --background-color: #FFFFFF;
-            --card-background: #FFFFFF;
-            --border-color: #E5E5EA;
-        }
-
-        .dark-mode {
-            --primary-color: #0A84FF;
-            --secondary-color: #5AC8FA;
-            --success-color: #30D158;
-            --danger-color: #FF453A;
-            --warning-color: #FF9F0A;
-            --info-color: #64D2FF;
-            --light-color: #1C1C1E;
-            --dark-color: #F2F2F7;
-            --text-color: #FFFFFF;
-            --text-secondary: #8E8E93;
-            --background-color: #000000;
-            --card-background: #1C1C1E;
-            --border-color: #2C2C2E;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-            background-color: var(--background-color);
-            color: var(--text-color);
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        .calendar-container {
-            max-width: 800px;
-            margin: 40px auto;
-            padding: 20px;
-            transform-style: preserve-3d;
-            perspective: 1000px;
-        }
-
-        .calendar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .calendar-nav-btn {
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: var(--primary-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            transition: background-color 0.2s;
-        }
-
-        .calendar-nav-btn:hover {
-            background-color: var(--light-color);
-        }
-
-        .calendar-title {
-            font-size: 24px;
-            font-weight: 600;
-        }
-
-        .weekdays {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-
-        .weekday {
-            text-align: center;
-            font-weight: 600;
-            color: var(--text-secondary);
-            padding: 10px 0;
-        }
-
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 10px;
-            transform: rotateX(10deg);
-            transform-style: preserve-3d;
-        }
-
-        .calendar-day {
-            aspect-ratio: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            padding: 8px;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            min-height: 90px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            transform-style: preserve-3d;
-            background: linear-gradient(145deg, var(--card-background), #f0f0f0);
-        }
-
-        .calendar-day::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: 12px;
-            background: linear-gradient(145deg, transparent, rgba(255, 255, 255, 0.5));
-            transform: translateZ(1px);
-        }
-
-        .calendar-day:hover {
-            background-color: var(--light-color);
-        }
-
-        .calendar-day.other-month {
-            color: var(--text-secondary);
-            opacity: 0.5;
-        }
-
-        .calendar-day.today {
-            background-color: var(--primary-color);
-            color: white;
-        }
-
-        .calendar-day.selected {
-            background-color: var(--light-color);
-            border: 2px solid var(--primary-color);
-        }
-
-        .day-number {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-
-        .todo-indicator {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background-color: var(--primary-color);
-            margin: 2px;
-        }
-
-        .todo-indicator.completed {
-            background-color: var(--success-color);
-        }
-
-        .todo-indicators {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 2px;
-            margin-top: 5px;
-        }
-
-        .todo-list-container {
-            margin-top: 30px;
-        }
-
-        .todo-list-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .todo-list-title {
-            font-size: 20px;
-            font-weight: 600;
-        }
-
-        .add-todo-btn {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 20px;
-            padding: 8px 18px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 4px rgba(0, 122, 255, 0.3);
-        }
-
-        .add-todo-btn:hover {
-            background-color: #0051D5;
-        }
-
-        .todo-list {
-            list-style: none;
-            padding: 0;
-        }
-
-        .todo-item {
-            display: flex;
-            align-items: center;
-            padding: 15px;
-            background-color: var(--card-background);
-            border-radius: 12px;
-            margin-bottom: 12px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-            transform-style: preserve-3d;
-            transform: translateZ(20px);
-        }
-
-        .todo-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .todo-checkbox {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            border: 2px solid var(--primary-color);
-            margin-right: 15px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-
-        .todo-checkbox.checked {
-            background-color: var(--primary-color);
-            color: white;
-        }
-
-        .todo-content {
-            flex-grow: 1;
-        }
-
-        .todo-title {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-
-        .todo-details {
-            font-size: 14px;
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .todo-time {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .todo-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .todo-action-btn {
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            cursor: pointer;
-            padding: 5px;
-            border-radius: 50%;
-            transition: background-color 0.2s, color 0.2s;
-        }
-
-        .todo-action-btn:hover {
-            background-color: var(--light-color);
-            color: var(--primary-color);
-        }
-
-        .todo-action-btn.delete:hover {
-            color: var(--danger-color);
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            animation: fadeIn 0.3s;
-        }
-
-        .modal-content {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) rotateX(-5deg);
-            background-color: var(--background-color);
-            padding: 25px;
-            border-radius: 22px;
-            width: 90%;
-            max-width: 450px;
-            animation: slideIn 0.3s;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-            transform-style: preserve-3d;
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .modal-title {
-            font-size: 24px;
-            font-weight: 600;
-        }
-
-        .close-btn {
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: var(--text-secondary);
-            transition: color 0.2s;
-        }
-
-        .close-btn:hover {
-            color: var(--text-color);
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            font-size: 16px;
-            background-color: var(--background-color);
-            color: var(--text-color);
-            transition: border-color 0.2s;
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-        }
-
-        .form-textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        .modal-footer {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-top: 30px;
-        }
-
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        .btn-primary {
-            background-color: var(--primary-color);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background-color: #0051D5;
-        }
-
-        .btn-secondary {
-            background-color: var(--light-color);
-            color: var(--text-color);
-        }
-
-        .btn-secondary:hover {
-            background-color: #E5E5EA;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 50px 0;
-            color: var(--text-secondary);
-        }
-
-        .empty-state-icon {
-            font-size: 64px;
-            margin-bottom: 20px;
-            opacity: 0.5;
-        }
-
-        .empty-state-title {
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-
-        .empty-state-text {
-            font-size: 16px;
-        }
-
-        .theme-toggle {
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            transition: background-color 0.2s;
-        }
-
-        .theme-toggle:hover {
-            background-color: var(--light-color);
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translate(-50%, -60%);
-                opacity: 0;
-            }
-            to {
-                transform: translate(-50%, -50%);
-                opacity: 1;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .calendar-day {
-                min-height: 80px;
-            }
-
-            .day-number {
-                font-size: 16px;
-            }
-
-            .todo-indicators {
-                gap: 1px;
-            }
-
-            .todo-indicator {
-                width: 5px;
-                height: 5px;
-                margin: 1px;
-            }
-
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .calendar-day {
-                min-height: 60px;
-                padding: 2px;
-            }
-
-            .day-number {
-                font-size: 14px;
-                margin-bottom: 2px;
-            }
-
-            .todo-indicator {
-                width: 4px;
-                height: 4px;
-            }
-        }
-    </style>
+    <title>办公导航助手</title>
+    <meta name="keywords" content="办公导航,工作效率工具,办公常用网址">
+    <meta name="description" content="专为上班族设计的高效办公导航站。">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="main.css" />
 </head>
-<body class="bg-gray-50 dark:bg-gray-900">
-    <div class="calendar-container">
-        <div class="calendar-header">
-            <button class="calendar-nav-btn" id="prev-month">
-                <i data-lucide="chevron-left"></i>
-            </button>
-            <h1 class="calendar-title" id="current-month-year">July 2025</h1>
-            <div style="display: flex; gap: 10px;">
-                <button class="theme-toggle" id="theme-toggle">
-                    <i data-lucide="sun" class="sun-icon"></i>
-                    <i data-lucide="moon" class="moon-icon" style="display: none;"></i>
+
+<body>
+    <!-- 头部导航 -->
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <i class="fas fa-compass logo-icon"></i>
+                <div class="logo-text">
+                    <span>办公导航助手</span>
+                    <div class="logo-subtitle">高效办公 · 一站导航</div>
+                </div>
+            </div>
+
+            <!-- 功能按钮区域 -->
+            <div class="header-actions">
+                <button class="btn-icon btn-outline" id="add-to-favorites" title="添加到收藏夹">
+                    <i class="fas fa-star"></i>
                 </button>
-                <button class="calendar-nav-btn" id="next-month">
-                    <i data-lucide="chevron-right"></i>
+                <button class="btn-icon btn-outline" id="set-as-homepage" title="设为首页">
+                    <i class="fas fa-home"></i>
                 </button>
             </div>
         </div>
+    </header>
 
-        <div class="weekdays">
-            <div class="weekday">Sun</div>
-            <div class="weekday">Mon</div>
-            <div class="weekday">Tue</div>
-            <div class="weekday">Wed</div>
-            <div class="weekday">Thu</div>
-            <div class="weekday">Fri</div>
-            <div class="weekday">Sat</div>
+    <!-- 主要内容区域 -->
+    <main>
+        <div class="container">
+            <!-- 主页 -->
+            <section id="home-page" class="page">
+
+                <!-- 搜索栏 -->
+                <div class="search-section">
+                    <form class="search-form" id="search-form">
+                        <div class="search-engine-selector">
+                            <h3>选择搜索引擎</h3>
+                            <div id="engine-selector" class="engine-options-container">
+                                <!-- 搜索引擎选项将通过JS动态生成 -->
+                            </div>
+                        </div>
+
+                        <div class="search-input-group">
+                            <input type="text" class="search-input" id="search-input" placeholder="输入搜索关键词，按回车或点击搜索...">
+                            <button type="submit" class="btn"><i class="fas fa-search"></i>搜索</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- 网址导航 -->
+                <div class="nav-section">
+                    <div class="section-header">
+                        <div>
+                            <h2>常用导航网址</h2>
+                            <p>点击图标访问网站，支持编辑功能</p>
+                        </div>
+                        <div class="edit-mode-controls">
+                            <button class="btn btn-secondary" id="toggle-edit"><i class="fas fa-edit"></i>编辑模式</button>
+                            <button class="btn" id="add-website"><i class="fas fa-plus"></i>添加网站</button>
+                        </div>
+                    </div>
+
+                    <div class="category-tabs" id="category-tabs">
+                        <!-- 分类标签将通过JS动态生成 -->
+                    </div>
+
+                    <div class="websites-grid" id="websites-grid">
+                        <!-- 网站卡片将通过JS动态生成 -->
+                    </div>
+                </div>
+            </section>
         </div>
+    </main>
 
-        <div class="calendar-grid" id="calendar-grid">
-            <!-- Calendar days will be dynamically generated here -->
-        </div>
-
-        <div class="todo-list-container">
-            <div class="todo-list-header">
-                <h2 class="todo-list-title" id="selected-date-title">Today's Tasks</h2>
-                <button class="add-todo-btn" id="add-todo-btn">
-                    <i data-lucide="plus"></i>
-                    Add Task
-                </button>
+    <!-- 页脚 -->
+    <footer>
+        <div class="container footer-container">
+            <div class="footer-section">
+                <h3>办公导航助手</h3>
+                <p>一个专为办公环境设计的智能导航网站，提供搜索引擎、常用网址导航、帮助您提高工作效率。</p>
             </div>
 
-            <ul class="todo-list" id="todo-list">
-                <!-- Todo items will be dynamically generated here -->
-            </ul>
-        </div>
-    </div>
+            <div class="footer-section">
+                <h3>主要功能</h3>
+                <p>• 多搜索引擎切换，快速查找信息</p>
+                <p>• 常用网址分类导航，一键访问</p>
+            </div>
 
-    <!-- Add/Edit Todo Modal -->
-    <div class="modal" id="todo-modal">
+            <div class="footer-section">
+                <h3>使用提示</h3>
+                <p>所有数据都保存在您的本地浏览器中，支持自定义编辑。点击编辑模式可以添加、修改或删除网站和分类，数据安全有保障。</p>
+            </div>
+        </div>
+
+        <div class="container copyright">
+            <p>&copy; 2025 办公导航助手 | 设计用于办公环境 | 数据本地存储 | 版本 2.0</p>
+        </div>
+        <div style="width:100%; text-align:center">
+            <iframe src="https://xetm.cn/get/inbottom" style="width:260px; height: 30px; border: 0px;"
+                scrolling="no"></iframe>
+        </div>
+    </footer>
+
+    <!-- 添加/编辑网站模态框 -->
+    <div class="modal" id="website-modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title" id="modal-title">Add New Task</h3>
-                <button class="close-btn" id="close-modal">
-                    <i data-lucide="x"></i>
-                </button>
+                <h2 id="modal-title">添加新网站</h2>
+                <button class="close-modal" id="close-modal">&times;</button>
             </div>
-            <form id="todo-form">
+
+            <form id="website-form">
                 <div class="form-group">
-                    <label for="todo-title" class="form-label">Title</label>
-                    <input type="text" id="todo-title" class="form-input" required>
+                    <label for="website-name"><i class="fas fa-globe"></i> 网站名称</label>
+                    <input type="text" id="website-name" required placeholder="例如：GitHub">
                 </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="todo-date" class="form-label">Date</label>
-                        <input type="date" id="todo-date" class="form-input" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="todo-time" class="form-label">Time (Optional)</label>
-                        <input type="time" id="todo-time" class="form-input">
-                    </div>
-                </div>
+
                 <div class="form-group">
-                    <label for="todo-notes" class="form-label">Notes (Optional)</label>
-                    <textarea id="todo-notes" class="form-input form-textarea"></textarea>
+                    <label for="website-url"><i class="fas fa-link"></i> 网站URL</label>
+                    <input type="url" id="website-url" required placeholder="https://example.com">
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" id="cancel-btn">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save</button>
+
+                <div class="form-group">
+                    <label for="website-category"><i class="fas fa-folder"></i> 分类</label>
+                    <select id="website-category" required>
+                        <!-- 分类选项将通过JS动态生成 -->
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="website-icon"><i class="fas fa-icons"></i> 图标 (FontAwesome类名)</label>
+                    <input type="text" id="website-icon" placeholder="例如: fas fa-search" required>
+                    <small>参考: <a href="https://fontawesome.com/icons" target="_blank">FontAwesome图标库</a>，输入图标类名如 "fas
+                        fa-search"</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="website-description"><i class="fas fa-align-left"></i> 描述 (可选)</label>
+                    <textarea id="website-description" rows="3" placeholder="简要描述网站功能或用途"></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancel-modal"><i class="fas fa-times"></i>
+                        取消</button>
+                    <button type="submit" class="btn"><i class="fas fa-save"></i> 保存</button>
                 </div>
             </form>
         </div>
     </div>
 
+    <!-- 脚本部分 -->
     <script>
-        // Initialize Lucide icons
-        lucide.createIcons();
+        // 数据存储和管理
+        const StorageManager = {
+            // 初始化默认数据
+            initDefaultData: function () {
+                // 检查是否已有数据  if (!localStorage.getItem('websites')) {
+                if (!localStorage.getItem('websites')) {
+                    const defaultWebsites = [
+                        { id: 1, name: "DeepSeek", url: "https://chat.deepseek.com", category: "AI助手", icon: "fas fa-search", description: "深度求索公司的大模型" },
+                        { id: 2, name: "通义千问", url: "https://tongyi.aliyun.com", category: "AI助手", icon: "fas fa-comments", description: "阿里云推出的AI大模型" },
+                        { id: 3, name: "咔咔闹钟", url: " https://apps.apple.com/cn/app/cn/id6752285870", category: "其他", icon: "fa-regular fa-alarm-clock", description: "iPhone 专属智能调休闹钟" },
+                        { id: 4, name: "智谱清言", url: "https://chatglm.cn", category: "AI助手", icon: "fas fa-lightbulb", description: "智谱AI的对话助手" },
+                        { id: 5, name: "Kimi", url: "https://kimi.moonshot.cn", category: "AI助手", icon: "fas fa-moon", description: "月之暗面推出的大模型" },
+                        { id: 6, name: "豆包", url: "https://www.doubao.com", category: "AI助手", icon: "fas fa-seedling", description: "字节跳动推出的AI助手" },
+                        { id: 7, name: "文心一言", url: "https://yiyan.baidu.com", category: "AI助手", icon: "fas fa-brain", description: "百度推出的AI对话助手" },
+                        { id: 7, name: "讯飞星火", url: "https://xinghuo.xfyun.cn", category: "AI助手", icon: "fas fa-fire", description: "科大讯飞的认知大模型" },
+                        { id: 8, name: "腾讯混元", url: "https://hunyuan.tencent.com", category: "AI助手", icon: "fab fa-weixin", description: "腾讯推出的AI大模型" },
+                        { id: 10, name: "360智脑", url: "https://ai.360.cn", category: "AI助手", icon: "fas fa-shield-alt", description: "360公司推出的AI大模型" },
+                        { id: 11, name: "天工", url: "https://www.tiangong.cn", category: "AI助手", icon: "fas fa-cogs", description: "昆仑万维推出的AI大模型" },
 
-        // DOM Elements
-        const calendarGrid = document.getElementById('calendar-grid');
-        const currentMonthYearEl = document.getElementById('current-month-year');
-        const prevMonthBtn = document.getElementById('prev-month');
-        const nextMonthBtn = document.getElementById('next-month');
-        const todoList = document.getElementById('todo-list');
-        const selectedDateTitle = document.getElementById('selected-date-title');
-        const addTodoBtn = document.getElementById('add-todo-btn');
-        const todoModal = document.getElementById('todo-modal');
-        const closeModalBtn = document.getElementById('close-modal');
-        const cancelBtn = document.getElementById('cancel-btn');
-        const todoForm = document.getElementById('todo-form');
-        const modalTitle = document.getElementById('modal-title');
-        const todoTitleInput = document.getElementById('todo-title');
-        const todoDateInput = document.getElementById('todo-date');
-        const todoTimeInput = document.getElementById('todo-time');
-        const todoNotesInput = document.getElementById('todo-notes');
-        const themeToggle = document.getElementById('theme-toggle');
-        const sunIcon = document.querySelector('.sun-icon');
-        const moonIcon = document.querySelector('.moon-icon');
+                        { id: 11, name: "腾讯", url: "https://www.qq.com", category: "综合门户", icon: "fa-brands fa-qq", description: "综合性互联网服务提供商" },
+                        { id: 38, name: "微信网页版", url: "https://filehelper.weixin.qq.com/", category: "其他", icon: "fa-brands fa-weixin", description: "" },
+                        { id: 13, name: "淘宝", url: "https://www.taobao.com", category: "电商平台", icon: "fas fa-shopping-cart", description: "阿里巴巴旗下的C2C电商平台[citation:1]" },
+                        { id: 14, name: "京东", url: "https://www.jd.com", category: "电商平台", icon: "fas fa-truck-fast", description: "中国自营式电商企业[citation:1][citation:2]" },
+                        { id: 15, name: "新浪", url: "https://www.sina.com.cn", category: "综合门户", icon: "fas fa-newspaper", description: "知名综合门户网站，旗下有新浪微博[citation:2][citation:4]" },
+                        { id: 16, name: "网易", url: "https://www.163.com", category: "综合门户", icon: "fas fa-music", description: "综合性门户网站，提供新闻、邮箱、游戏等服务[citation:1][citation:4]" },
+                        { id: 17, name: "搜狐", url: "https://www.sohu.com", category: "综合门户", icon: "fab fa-snapchat-ghost", description: "中国主要门户网站之一[citation:4][citation:6]" },
+                        { id: 18, name: "微博", url: "https://www.weibo.com", category: "社交媒体", icon: "fab fa-weibo", description: "中国最大的社交媒体平台之一[citation:6]" },
+                        { id: 19, name: "知乎", url: "https://www.zhihu.com", category: "社区论坛", icon: "fa-brands fa-zhihu", description: "高质量的问答社区和创作者聚集的平台[citation:5]" },
+                        { id: 20, name: "B站（哔哩哔哩）", url: "https://www.bilibili.com", category: "视频平台", icon: "fas fa-play-circle", description: "年轻人喜爱的视频社区[citation:5]" },
 
-        // State
-        let currentDate = new Date();
-        let selectedDate = new Date();
-        let todos = JSON.parse(localStorage.getItem('todos')) || [];
-        let editingTodoId = null;
+                        { id: 21, name: "今日头条", url: "https://www.toutiao.com", category: "综合门户", icon: "fas fa-heading", description: "基于数据化挖掘的个性化信息推荐引擎[citation:1][citation:5]" },
+                        { id: 22, name: "爱奇艺", url: "https://www.iqiyi.com", category: "视频平台", icon: "fas fa-film", description: "在线视频网站[citation:1]" },
+                        { id: 23, name: "腾讯视频", url: "https://v.qq.com", category: "视频平台", icon: "fas fa-tv", description: "腾讯旗下的视频平台[citation:1][citation:5]" },
+                        { id: 24, name: "优酷", url: "https://www.youku.com", category: "视频平台", icon: "fas fa-video", description: "阿里巴巴旗下的视频平台[citation:1]" },
+                        { id: 25, name: "小红书", url: "https://www.xiaohongshu.com", category: "社交媒体", icon: "fas fa-book", description: "生活方式分享平台[citation:1]" },
+                        { id: 26, name: "豆瓣", url: "https://www.douban.com", category: "社区论坛", icon: "fas fa-star", description: "以书影音为主的社交网络平台[citation:5]" },
+                        { id: 27, name: "人民网", url: "https://www.people.com.cn", category: "新闻媒体", icon: "fas fa-landmark", description: "人民日报建设的网上信息交互平台[citation:7][citation:8]" },
+                        { id: 28, name: "新华网", url: "https://www.xinhuanet.com", category: "新闻媒体", icon: "fas fa-globe-asia", description: "国家通讯社新华社主办的综合新闻门户[citation:7][citation:8]" },
+                        { id: 29, name: "央视网", url: "https://www.cctv.com", category: "新闻媒体", icon: "fas fa-broadcast-tower", description: "中央广播电视总台主办的重点新闻网站[citation:7]" },
+                        { id: 30, name: "凤凰网", url: "https://www.ifeng.com", category: "新闻媒体", icon: "fas fa-feather-alt", description: "知名综合门户网站[citation:4]" },
+                        { id: 31, name: "美团", url: "https://www.meituan.com", category: "生活服务", icon: "fas fa-utensils", description: "提供餐饮外卖、酒店旅游等服务的平台" },
+                        { id: 32, name: "携程", url: "https://www.ctrip.com", category: "生活服务", icon: "fas fa-plane", description: "在线旅行服务公司" },
+                        { id: 33, name: "拼多多", url: "https://www.pinduoduo.com", category: "电商平台", icon: "fas fa-hand-holding-usd", description: "专注于团购的社交电商平台" },
+                        { id: 34, name: "抖音", url: "https://www.douyin.com", category: "视频平台", icon: "fas fa-video", description: "字节跳动旗下的短视频社交平台" },
+                        { id: 35, name: "百度贴吧", url: "https://tieba.baidu.com", category: "社区论坛", icon: "fas fa-users", description: "基于关键词的主题交流社区[citation:7]" },
+                        { id: 36, name: "百度翻译", url: "https://fanyi.baidu.com", category: "其他", icon: "fa-solid fa-language", description: "" },
+                        { id: 37, name: "码农VIP", url: "https://www.manongvip.com", category: "其他", icon: "fa-brands fa-ideal", description: "" }
 
-        // Initialize the app
-        function initApp() {
-            renderCalendar();
-            renderTodos();
-            setupEventListeners();
-            checkDarkModePreference();
-        }
+                    ];
+                    localStorage.setItem('websites', JSON.stringify(defaultWebsites));
+                }
 
-        // Render the calendar
-        function renderCalendar() {
-            const year = currentDate.getFullYear();
-            const month = currentDate.getMonth();
+                //if (!localStorage.getItem('categories')) {
+                if (!localStorage.getItem('categories')) {
+                    const defaultCategories = ["全部", "AI助手", "综合门户", "电商平台", "社交媒体", "视频平台", "生活服务", "社区论坛", "其他"];
+                    localStorage.setItem('categories', JSON.stringify(defaultCategories));
+                }
 
-            // Update the month and year display
-            currentMonthYearEl.textContent = new Intl.DateTimeFormat('en-US', { 
-                month: 'long', 
-                year: 'numeric' 
-            }).format(currentDate);
+                //if (!localStorage.getItem('searchEngines')) {
+                if (!localStorage.getItem('searchEngines')) {
+                    const defaultEngines = [
+                        { name: "百度", url: "https://www.baidu.com/s?wd=", icon: "fas fa-search" },
+                        { name: "Google", url: "https://www.google.com/search?q=", icon: "fab fa-google" },
+                        { name: "Bing", url: "https://www.bing.com/search?q=", icon: "fab fa-microsoft" },
+                        { name: "GitHub", url: "https://github.com/search?q=", icon: "fab fa-github" },
+                        { name: "知乎", url: "https://www.zhihu.com/search?type=content&q=", icon: "fas fa-question-circle" }
+                    ];
+                    localStorage.setItem('searchEngines', JSON.stringify(defaultEngines));
+                    localStorage.setItem('selectedEngine', JSON.stringify(defaultEngines[0]));
+                }
+            },
 
-            // Clear the calendar grid
-            calendarGrid.innerHTML = '';
+            // 获取数据
+            getWebsites: function () {
+                return JSON.parse(localStorage.getItem('websites')) || [];
+            },
 
-            // Get the first day of the month and the number of days in the month
-            const firstDayOfMonth = new Date(year, month, 1).getDay();
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-            const daysInPrevMonth = new Date(year, month, 0).getDate();
+            getCategories: function () {
+                return JSON.parse(localStorage.getItem('categories')) || [];
+            },
 
-            // Add days from the previous month
-            for (let i = firstDayOfMonth - 1; i >= 0; i--) {
-                const day = daysInPrevMonth - i;
-                const date = new Date(year, month - 1, day);
-                const dayElement = createDayElement(date, true);
-                calendarGrid.appendChild(dayElement);
+            getSearchEngines: function () {
+                return JSON.parse(localStorage.getItem('searchEngines')) || [];
+            },
+
+            getSelectedEngine: function () {
+                return JSON.parse(localStorage.getItem('selectedEngine')) || this.getSearchEngines()[0];
+            },
+
+            // 保存数据
+            saveWebsites: function (websites) {
+                localStorage.setItem('websites', JSON.stringify(websites));
+            },
+
+            saveCategories: function (categories) {
+                localStorage.setItem('categories', JSON.stringify(categories));
+            },
+
+            saveSearchEngines: function (engines) {
+                localStorage.setItem('searchEngines', JSON.stringify(engines));
+            },
+
+            saveSelectedEngine: function (engine) {
+                localStorage.setItem('selectedEngine', JSON.stringify(engine));
+            },
+
+            // 添加新网站
+            addWebsite: function (website) {
+                const websites = this.getWebsites();
+                website.id = Date.now(); // 使用时间戳作为ID
+                websites.push(website);
+                this.saveWebsites(websites);
+                return website;
+            },
+
+            // 更新网站
+            updateWebsite: function (updatedWebsite) {
+                const websites = this.getWebsites();
+                const index = websites.findIndex(w => w.id === updatedWebsite.id);
+                if (index !== -1) {
+                    websites[index] = updatedWebsite;
+                    this.saveWebsites(websites);
+                    return true;
+                }
+                return false;
+            },
+
+            // 删除网站
+            deleteWebsite: function (id) {
+                const websites = this.getWebsites();
+                const filteredWebsites = websites.filter(w => w.id !== id);
+                this.saveWebsites(filteredWebsites);
+                return filteredWebsites;
+            },
+
+            // 添加新分类
+            addCategory: function (category) {
+                const categories = this.getCategories();
+                if (!categories.includes(category) && category !== "全部") {
+                    categories.push(category);
+                    this.saveCategories(categories);
+                }
+                return categories;
             }
+        };
 
-            // Add days from the current month
-            for (let i = 1; i <= daysInMonth; i++) {
-                const date = new Date(year, month, i);
-                const dayElement = createDayElement(date, false);
-                calendarGrid.appendChild(dayElement);
-            }
+        // 页面管理
+        const PageManager = {
+            currentPage: 'home',
+            editMode: false,
 
-            // Add days from the next month to fill the grid
-            const totalCells = 42; // 6 rows x 7 columns
-            const cellsAdded = firstDayOfMonth + daysInMonth;
-            const daysToAdd = totalCells - cellsAdded;
+            init: function () {
+                // 初始化数据
+                StorageManager.initDefaultData();
 
-            for (let i = 1; i <= daysToAdd; i++) {
-                const date = new Date(year, month + 1, i);
-                const dayElement = createDayElement(date, true);
-                calendarGrid.appendChild(dayElement);
-            }
-        }
+                // 设置导航事件
+                this.setupNavigation();
 
-        // Create a day element
-        function createDayElement(date, isOtherMonth) {
-            const dayElement = document.createElement('div');
-            dayElement.classList.add('calendar-day');
-            
-            if (isOtherMonth) {
-                dayElement.classList.add('other-month');
-            }
+                // 设置功能按钮事件
+                this.setupUtilityButtons();
 
-            // Check if this is today
-            const today = new Date();
-            if (date.getDate() === today.getDate() && 
-                date.getMonth() === today.getMonth() && 
-                date.getFullYear() === today.getFullYear()) {
-                dayElement.classList.add('today');
-            }
+                // 初始化主页
+                this.initHomePage();
 
-            // Check if this is the selected date
-            if (date.getDate() === selectedDate.getDate() && 
-                date.getMonth() === selectedDate.getMonth() && 
-                date.getFullYear() === selectedDate.getFullYear()) {
-                dayElement.classList.add('selected');
-            }
+                // 初始化模态框
+                this.initModal();
 
-            // Add the day number
-            const dayNumber = document.createElement('div');
-            dayNumber.classList.add('day-number');
-            dayNumber.textContent = date.getDate();
-            dayElement.appendChild(dayNumber);
+                // 初始加载完成
+                console.log('办公导航助手已初始化');
+            },
 
-            // Add todo indicators
-            const dateString = formatDate(date);
-            const dayTodos = todos.filter(todo => todo.date === dateString);
-            
-            if (dayTodos.length > 0) {
-                const indicatorsContainer = document.createElement('div');
-                indicatorsContainer.classList.add('todo-indicators');
-                
-                // Limit to 5 indicators
-                const indicatorsToShow = Math.min(dayTodos.length, 5);
-                
-                for (let i = 0; i < indicatorsToShow; i++) {
-                    const indicator = document.createElement('div');
-                    indicator.classList.add('todo-indicator');
-                    if (dayTodos[i].completed) {
-                        indicator.classList.add('completed');
+            setupNavigation: function () {
+                // 编辑模式切换
+                document.getElementById('toggle-edit').addEventListener('click', () => this.toggleEditMode());
+
+                // 添加网站按钮
+                document.getElementById('add-website').addEventListener('click', () => this.openWebsiteModal());
+
+                // 搜索表单提交
+                document.getElementById('search-form').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.performSearch();
+                });
+
+                // 搜索输入框回车键支持
+                document.getElementById('search-input').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.performSearch();
                     }
-                    indicatorsContainer.appendChild(indicator);
+                });
+            },
+
+            setupUtilityButtons: function () {
+                // 添加到收藏按钮
+                const addToFavoritesBtn = document.getElementById('add-to-favorites');
+                if (addToFavoritesBtn) {
+                    addToFavoritesBtn.addEventListener('click', () => this.addToFavorites());
                 }
-                
-                dayElement.appendChild(indicatorsContainer);
-            }
 
-            // Add click event to select the date
-            dayElement.addEventListener('click', () => {
-                selectedDate = new Date(date);
-                renderCalendar();
-                renderTodos();
-            });
-
-            return dayElement;
-        }
-
-        // Render the todos for the selected date
-        function renderTodos() {
-            const dateString = formatDate(selectedDate);
-            const selectedDateTodos = todos.filter(todo => todo.date === dateString);
-
-            // Update the selected date title
-            selectedDateTitle.textContent = new Intl.DateTimeFormat('en-US', { 
-                weekday: 'long', 
-                month: 'long', 
-                day: 'numeric',
-                year: 'numeric'
-            }).format(selectedDate);
-
-            // Clear the todo list
-            todoList.innerHTML = '';
-
-            // Check if there are no todos for the selected date
-            if (selectedDateTodos.length === 0) {
-                const emptyState = document.createElement('div');
-                emptyState.classList.add('empty-state');
-                emptyState.innerHTML = `
-                    <i data-lucide="calendar-plus" class="empty-state-icon"></i>
-                    <h3 class="empty-state-title">No Tasks</h3>
-                    <p class="empty-state-text">Add a new task to get started</p>
-                `;
-                todoList.appendChild(emptyState);
-                lucide.createIcons();
-                return;
-            }
-
-            // Sort todos by time (if available) and then by title
-            selectedDateTodos.sort((a, b) => {
-                if (a.time && b.time) {
-                    return a.time.localeCompare(b.time);
+                // 设为首页按钮
+                const setAsHomepageBtn = document.getElementById('set-as-homepage');
+                if (setAsHomepageBtn) {
+                    setAsHomepageBtn.addEventListener('click', () => this.setAsHomepage());
                 }
-                if (a.time) return -1;
-                if (b.time) return 1;
-                return a.title.localeCompare(b.title);
-            });
+            },
 
-            // Add todos to the list
-            selectedDateTodos.forEach(todo => {
-                const todoItem = document.createElement('li');
-                todoItem.classList.add('todo-item');
-                
-                todoItem.innerHTML = `
-                    <div class="todo-checkbox ${todo.completed ? 'checked' : ''}" data-id="${todo.id}">
-                        ${todo.completed ? '<i data-lucide="check" size="16"></i>' : ''}
-                    </div>
-                    <div class="todo-content">
-                        <div class="todo-title ${todo.completed ? 'line-through text-gray-500' : ''}">${todo.title}</div>
-                        <div class="todo-details">
-                            ${todo.time ? `
-                                <div class="todo-time">
-                                    <i data-lucide="clock" size="14"></i>
-                                    <span>${todo.time}</span>
-                                </div>
-                            ` : ''}
-                            ${todo.notes ? `
-                                <div class="todo-notes">
-                                    <i data-lucide="file-text" size="14"></i>
-                                    <span>Notes</span>
-                                </div>
-                            ` : ''}
+            showPage: function (page) {
+                // 隐藏所有页面
+                document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+
+                // 显示目标页面
+                document.getElementById(`${page}-page`).style.display = 'block';
+
+                // 设置导航激活状态
+                document.getElementById(`nav-${page}`).classList.add('active');
+
+                // 更新当前页面
+                this.currentPage = page;
+
+                // 退出编辑模式
+                this.editMode = false;
+                document.getElementById('toggle-edit').innerHTML = '<i class="fas fa-edit"></i>编辑模式';
+                this.updateEditModeUI();
+
+                // 滚动到顶部
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+
+                // 关闭移动端菜单
+                const mainNav = document.getElementById('main-nav');
+                if (mainNav.classList.contains('active')) {
+                    mainNav.classList.remove('active');
+                    document.getElementById('mobile-menu-btn').querySelector('i').classList.remove('fa-times');
+                    document.getElementById('mobile-menu-btn').querySelector('i').classList.add('fa-bars');
+                }
+            },
+
+            toggleEditMode: function () {
+                this.editMode = !this.editMode;
+                const toggleBtn = document.getElementById('toggle-edit');
+                toggleBtn.innerHTML = this.editMode ?
+                    '<i class="fas fa-times"></i>退出编辑' :
+                    '<i class="fas fa-edit"></i>编辑模式';
+
+                toggleBtn.classList.toggle('btn-secondary', !this.editMode);
+                toggleBtn.classList.toggle('btn', this.editMode);
+
+                this.updateEditModeUI();
+            },
+
+            updateEditModeUI: function () {
+                const websitesGrid = document.getElementById('websites-grid');
+                if (!websitesGrid) return;
+
+                const websiteCards = websitesGrid.querySelectorAll('.website-card');
+                websiteCards.forEach(card => {
+                    if (this.editMode) {
+                        // 添加删除按钮
+                        if (!card.querySelector('.delete-btn')) {
+                            const deleteBtn = document.createElement('button');
+                            deleteBtn.className = 'delete-btn';
+                            deleteBtn.innerHTML = '<i class="fas fa-times"></i>';
+                            deleteBtn.title = '删除网站';
+
+                            const websiteId = parseInt(card.dataset.id);
+                            deleteBtn.addEventListener('click', (e) => {
+                                e.stopPropagation();
+                                this.deleteWebsite(websiteId);
+                            });
+
+                            card.appendChild(deleteBtn);
+                        }
+
+                        // 添加编辑指示
+                        card.style.cursor = 'default';
+                    } else {
+                        // 移除删除按钮
+                        const deleteBtn = card.querySelector('.delete-btn');
+                        if (deleteBtn) {
+                            deleteBtn.remove();
+                        }
+
+                        // 恢复点击功能
+                        card.style.cursor = 'pointer';
+                    }
+                });
+            },
+
+            initHomePage: function () {
+                // 初始化搜索引擎选择器
+                this.initSearchEngines();
+
+                // 初始化网址导航
+                this.initWebsiteNavigation();
+            },
+
+            initSearchEngines: function () {
+                const engines = StorageManager.getSearchEngines();
+                const selectedEngine = StorageManager.getSelectedEngine();
+                const engineSelector = document.getElementById('engine-selector');
+
+                engineSelector.innerHTML = '';
+
+                engines.forEach(engine => {
+                    const engineOption = document.createElement('div');
+                    engineOption.className = `engine-option ${engine.name === selectedEngine.name ? 'selected' : ''}`;
+                    engineOption.dataset.name = engine.name;
+                    engineOption.title = `使用 ${engine.name} 搜索`;
+
+                    engineOption.innerHTML = `
+                        <i class="${engine.icon}"></i>
+                        <span>${engine.name}</span>
+                    `;
+
+                    engineOption.addEventListener('click', () => {
+                        document.querySelectorAll('.engine-option').forEach(opt => opt.classList.remove('selected'));
+                        engineOption.classList.add('selected');
+                        StorageManager.saveSelectedEngine(engine);
+
+                        // 移动端优化：点击后自动聚焦搜索框
+                        if (window.innerWidth < 768) {
+                            document.getElementById('search-input').focus();
+                        }
+                    });
+
+                    engineSelector.appendChild(engineOption);
+                });
+            },
+
+            initWebsiteNavigation: function () {
+                const websites = StorageManager.getWebsites();
+                const categories = StorageManager.getCategories();
+                const categoryTabs = document.getElementById('category-tabs');
+                const websitesGrid = document.getElementById('websites-grid');
+
+                // 如果没有网站，显示空状态
+                if (websites.length === 0) {
+                    websitesGrid.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-compass"></i>
+                            <h3>暂无网站</h3>
+                            <p>点击"添加网站"按钮来添加第一个网站</p>
+                            <button class="btn" id="add-first-website" style="margin-top: 20px;">
+                                <i class="fas fa-plus"></i> 添加网站
+                            </button>
+                        </div>
+                    `;
+
+                    document.getElementById('add-first-website').addEventListener('click', () => {
+                        this.openWebsiteModal();
+                    });
+
+                    return;
+                }
+
+                // 生成分类标签
+                categoryTabs.innerHTML = '';
+                categories.forEach(category => {
+                    const tab = document.createElement('div');
+                    tab.className = `category-tab ${category === '全部' ? 'active' : ''}`;
+                    tab.textContent = category;
+                    tab.dataset.category = category;
+
+                    tab.addEventListener('click', () => {
+                        document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+                        tab.classList.add('active');
+                        this.filterWebsitesByCategory(category);
+                    });
+
+                    categoryTabs.appendChild(tab);
+                });
+
+                // 生成网站卡片
+                this.renderWebsites(websites);
+            },
+
+            renderWebsites: function (websites) {
+                const websitesGrid = document.getElementById('websites-grid');
+                if (!websitesGrid) return;
+
+                websitesGrid.innerHTML = '';
+
+                websites.forEach(website => {
+                    const card = document.createElement('div');
+                    card.className = 'website-card';
+                    card.dataset.id = website.id;
+                    card.dataset.category = website.category;
+
+                    card.innerHTML = `
+                        <div class="website-icon">
+                            <i class="${website.icon}"></i>
+                        </div>
+                        <div class="website-info">
+                            <h3>${website.name}</h3>
+                            <p>${website.description || website.category}</p>
+                            <div class="website-category">${website.category}</div>
+                        </div>
+                    `;
+
+                    // 点击打开网站
+                    card.addEventListener('click', () => {
+                        if (!this.editMode) {
+                            window.open(website.url, '_blank');
+                        }
+                    });
+
+                    websitesGrid.appendChild(card);
+                });
+
+                // 更新编辑模式UI
+                this.updateEditModeUI();
+            },
+
+            filterWebsitesByCategory: function (category) {
+                const websites = StorageManager.getWebsites();
+                let filteredWebsites;
+
+                if (category === '全部') {
+                    filteredWebsites = websites;
+                } else {
+                    filteredWebsites = websites.filter(website => website.category === category);
+                }
+
+                // 如果没有符合条件的网站，显示空状态
+                if (filteredWebsites.length === 0) {
+                    const websitesGrid = document.getElementById('websites-grid');
+                    websitesGrid.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-folder-open"></i>
+                            <h3>此分类暂无网站</h3>
+                            <p>尝试切换到其他分类或添加新网站</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                this.renderWebsites(filteredWebsites);
+            },
+
+            performSearch: function () {
+                const searchInput = document.getElementById('search-input');
+                const query = searchInput.value.trim();
+
+                if (!query) {
+                    this.showMessage('请输入搜索关键词', 'warning');
+                    searchInput.focus();
+                    return;
+                }
+
+                const selectedEngine = StorageManager.getSelectedEngine();
+                const searchUrl = selectedEngine.url + encodeURIComponent(query);
+
+                window.open(searchUrl, '_blank');
+                searchInput.value = '';
+
+                // 记录搜索历史
+                this.recordSearchHistory(query, selectedEngine.name);
+            },
+
+            recordSearchHistory: function (query, engine) {
+                let history = JSON.parse(localStorage.getItem('searchHistory')) || [];
+                history.unshift({
+                    query: query,
+                    engine: engine,
+                    timestamp: new Date().toISOString()
+                });
+
+                // 只保留最近10条记录
+                history = history.slice(0, 10);
+                localStorage.setItem('searchHistory', JSON.stringify(history));
+            },
+
+            // 添加到收藏功能
+            addToFavorites: function () {
+                const pageTitle = document.title;
+                const pageUrl = window.location.href;
+
+                // 尝试添加到收藏夹
+                try {
+                    // 由于安全限制，大多数现代浏览器不允许脚本直接添加收藏
+                    // 所以我们需要提供用户手动操作的指导
+                    this.showCustomMessage(
+                        `<div style="text-align: left; line-height: 1.6;">
+                            <p><strong>将此页面添加到收藏夹：</strong></p>
+                            <div style="margin-left: 20px;">
+                                <p><strong>方法一：使用快捷键</strong></p>
+                                <p>• Windows/Linux: 按 <kbd style="background: #e2e8f0; padding: 4px 8px; border-radius: 4px; font-weight: bold;">Ctrl</kbd> + <kbd style="background: #e2e8f0; padding: 4px 8px; border-radius: 4px; font-weight: bold;">D</kbd></p>
+                                <p>• Mac: 按 <kbd style="background: #e2e8f0; padding: 4px 8px; border-radius: 4px; font-weight: bold;">Cmd</kbd> + <kbd style="background: #e2e8f0; padding: 4px 8px; border-radius: 4px; font-weight: bold;">D</kbd></p>
+                                
+                                <p style="margin-top: 15px;"><strong>方法二：使用浏览器菜单</strong></p>
+                                <p>• 点击浏览器地址栏右侧的星标图标 ☆</p>
+                                <p>• 或点击浏览器菜单 → 添加到收藏夹</p>
+                            </div>
+                            <p style="margin-top: 15px; color: var(--accent-color);">
+                                页面标题：${pageTitle}<br>
+                                页面网址：<code style="word-break: break-all;">${pageUrl}</code>
+                            </p>
+                        </div>`,
+                        '添加到收藏夹'
+                    );
+                } catch (error) {
+                    this.showMessage('操作失败，请手动添加收藏', 'warning');
+                }
+            },
+
+            // 设为首页功能
+            setAsHomepage: function () {
+                // 获取当前页面URL
+                const pageUrl = window.location.href;
+
+                this.showCustomMessage(
+                    `<div style="text-align: left; line-height: 1.6;">
+                        <p><strong>将此页面设为首页的步骤：</strong></p>
+                        <div style="margin-left: 20px;">
+                            <p><strong>Chrome浏览器：</strong></p>
+                            <p>1. 点击右上角三个点 → 设置</p>
+                            <p>2. 在"启动时"部分，选择"打开特定网页或一组网页"</p>
+                            <p>3. 点击"添加新网页"，输入：<code>${pageUrl}</code></p>
+                            
+                            <p style="margin-top: 10px;"><strong>Firefox浏览器：</strong></p>
+                            <p>1. 点击右上角三条线 → 选项</p>
+                            <p>2. 选择"主页"部分</p>
+                            <p>3. 在"主页和新窗口"中输入：<code>${pageUrl}</code></p>
+                            
+                            <p style="margin-top: 10px;"><strong>Edge浏览器：</strong></p>
+                            <p>1. 点击右上角三个点 → 设置</p>
+                            <p>2. 选择"开始、主页和新建标签页"</p>
+                            <p>3. 在"主页"部分，打开"输入网址"开关</p>
+                            <p>4. 输入：<code>${pageUrl}</code></p>
+                            
+                            <p style="margin-top: 10px;"><strong>Safari浏览器：</strong></p>
+                            <p>1. 点击 Safari → 偏好设置</p>
+                            <p>2. 选择"通用"标签</p>
+                            <p>3. 在"主页"字段中输入：<code>${pageUrl}</code></p>
+                        </div>
+                        <p style="margin-top: 15px; color: var(--accent-color);">
+                            当前页面网址：<br><code style="word-break: break-all;">${pageUrl}</code>
+                        </p>
+                    </div>`,
+                    '设为首页指导'
+                );
+            },
+
+            // 显示自定义消息（用于显示更复杂的HTML内容）
+            showCustomMessage: function (content, title = '提示') {
+                // 创建模态框
+                const modal = document.createElement('div');
+                modal.className = 'modal active';
+                modal.style.display = 'flex';
+
+                modal.innerHTML = `
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2>${title}</h2>
+                            <button class="close-modal">&times;</button>
+                        </div>
+                        <div style="padding: 20px 0;">
+                            ${content}
+                        </div>
+                        <div class="form-actions">
+                            <button class="btn" id="copy-url-btn">
+                                <i class="fas fa-copy"></i> 复制网址
+                            </button>
+                            <button class="btn btn-secondary" id="close-custom-modal">
+                                关闭
+                            </button>
                         </div>
                     </div>
-                    <div class="todo-actions">
-                        <button class="todo-action-btn edit" data-id="${todo.id}">
-                            <i data-lucide="edit" size="18"></i>
-                        </button>
-                        <button class="todo-action-btn delete" data-id="${todo.id}">
-                            <i data-lucide="trash-2" size="18"></i>
-                        </button>
-                    </div>
                 `;
-                
-                todoList.appendChild(todoItem);
-            });
 
-            // Reinitialize Lucide icons
-            lucide.createIcons();
-        }
+                document.body.appendChild(modal);
 
-        // Setup event listeners
-        function setupEventListeners() {
-            // Calendar navigation
-            prevMonthBtn.addEventListener('click', () => {
-                currentDate.setMonth(currentDate.getMonth() - 1);
-                renderCalendar();
-            });
+                // 关闭按钮事件
+                const closeBtn = modal.querySelector('.close-modal');
+                const closeCustomBtn = modal.querySelector('#close-custom-modal');
 
-            nextMonthBtn.addEventListener('click', () => {
-                currentDate.setMonth(currentDate.getMonth() + 1);
-                renderCalendar();
-            });
-
-            // Add todo button
-            addTodoBtn.addEventListener('click', () => {
-                openModal();
-            });
-
-            // Close modal button
-            closeModalBtn.addEventListener('click', () => {
-                closeModal();
-            });
-
-            // Cancel button
-            cancelBtn.addEventListener('click', () => {
-                closeModal();
-            });
-
-            // Close modal when clicking outside
-            todoModal.addEventListener('click', (e) => {
-                if (e.target === todoModal) {
-                    closeModal();
-                }
-            });
-
-            // Submit todo form
-            todoForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                saveTodo();
-            });
-
-            // Toggle todo completion status
-            todoList.addEventListener('click', (e) => {
-                const checkbox = e.target.closest('.todo-checkbox');
-                if (checkbox) {
-                    toggleTodoCompletion(checkbox.dataset.id);
-                }
-
-                // Edit todo
-                const editBtn = e.target.closest('.todo-action-btn.edit');
-                if (editBtn) {
-                    editTodo(editBtn.dataset.id);
-                }
-
-                // Delete todo
-                const deleteBtn = e.target.closest('.todo-action-btn.delete');
-                if (deleteBtn) {
-                    deleteTodo(deleteBtn.dataset.id);
-                }
-            });
-
-            // Theme toggle
-            themeToggle.addEventListener('click', () => {
-                toggleDarkMode();
-            });
-
-            // Keyboard shortcuts
-            document.addEventListener('keydown', (e) => {
-                // Escape key to close modal
-                if (e.key === 'Escape' && todoModal.style.display === 'block') {
-                    closeModal();
-                }
-            });
-        }
-
-        // Open the modal
-        function openModal(todoId = null) {
-            editingTodoId = todoId;
-            
-            if (todoId) {
-                // Edit mode
-                const todo = todos.find(t => t.id === todoId);
-                if (todo) {
-                    modalTitle.textContent = 'Edit Task';
-                    todoTitleInput.value = todo.title;
-                    todoDateInput.value = todo.date;
-                    todoTimeInput.value = todo.time || '';
-                    todoNotesInput.value = todo.notes || '';
-                }
-            } else {
-                // Add mode
-                modalTitle.textContent = 'Add New Task';
-                todoTitleInput.value = '';
-                todoDateInput.value = formatDate(selectedDate);
-                todoTimeInput.value = '';
-                todoNotesInput.value = '';
-            }
-            
-            todoModal.style.display = 'block';
-            todoTitleInput.focus();
-        }
-
-        // Close the modal
-        function closeModal() {
-            todoModal.style.display = 'none';
-            editingTodoId = null;
-        }
-
-        // Save a todo
-        function saveTodo() {
-            const title = todoTitleInput.value.trim();
-            const date = todoDateInput.value;
-            const time = todoTimeInput.value.trim() || null;
-            const notes = todoNotesInput.value.trim() || null;
-
-            if (!title || !date) {
-                alert('Please enter a title and date');
-                return;
-            }
-
-            if (editingTodoId) {
-                // Update existing todo
-                const todoIndex = todos.findIndex(t => t.id === editingTodoId);
-                if (todoIndex !== -1) {
-                    todos[todoIndex] = {
-                        ...todos[todoIndex],
-                        title,
-                        date,
-                        time,
-                        notes
-                    };
-                }
-            } else {
-                // Add new todo
-                const newTodo = {
-                    id: generateId(),
-                    title,
-                    date,
-                    time,
-                    notes,
-                    completed: false
+                const closeModal = () => {
+                    modal.style.opacity = '0';
+                    setTimeout(() => {
+                        if (modal.parentNode) {
+                            modal.parentNode.removeChild(modal);
+                        }
+                    }, 300);
                 };
-                todos.push(newTodo);
+
+                closeBtn.addEventListener('click', closeModal);
+                closeCustomBtn.addEventListener('click', closeModal);
+
+                // 点击模态框外部关闭
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        closeModal();
+                    }
+                });
+
+                // 复制网址按钮
+                const copyUrlBtn = modal.querySelector('#copy-url-btn');
+                copyUrlBtn.addEventListener('click', () => {
+                    const pageUrl = window.location.href;
+                    navigator.clipboard.writeText(pageUrl).then(() => {
+                        this.showMessage('网址已复制到剪贴板！', 'success');
+                        closeModal();
+                    }).catch(() => {
+                        // 如果clipboard API失败，使用传统方法
+                        const textArea = document.createElement('textarea');
+                        textArea.value = pageUrl;
+                        document.body.appendChild(textArea);
+                        textArea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textArea);
+                        this.showMessage('网址已复制到剪贴板！', 'success');
+                        closeModal();
+                    });
+                });
+            },
+
+            initModal: function () {
+                const modal = document.getElementById('website-modal');
+                const closeModal = document.getElementById('close-modal');
+                const cancelModal = document.getElementById('cancel-modal');
+                const websiteForm = document.getElementById('website-form');
+
+                // 关闭模态框
+                closeModal.addEventListener('click', () => this.closeWebsiteModal());
+                cancelModal.addEventListener('click', () => this.closeWebsiteModal());
+
+                // 点击模态框外部关闭
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        this.closeWebsiteModal();
+                    }
+                });
+
+                // 表单提交
+                websiteForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.saveWebsite();
+                });
+
+                // 初始化分类选择
+                this.updateCategorySelect();
+            },
+
+            openWebsiteModal: function (website = null) {
+                const modal = document.getElementById('website-modal');
+                const modalTitle = document.getElementById('modal-title');
+                const form = document.getElementById('website-form');
+
+                if (website) {
+                    // 编辑模式
+                    modalTitle.textContent = '编辑网站';
+                    form.dataset.mode = 'edit';
+                    form.dataset.id = website.id;
+
+                    document.getElementById('website-name').value = website.name;
+                    document.getElementById('website-url').value = website.url;
+                    document.getElementById('website-category').value = website.category;
+                    document.getElementById('website-icon').value = website.icon;
+                    document.getElementById('website-description').value = website.description || '';
+                } else {
+                    // 添加模式
+                    modalTitle.textContent = '添加新网站';
+                    form.dataset.mode = 'add';
+                    form.reset();
+
+                    // 设置默认图标
+                    document.getElementById('website-icon').value = 'fas fa-globe';
+                }
+
+                modal.classList.add('active');
+                document.getElementById('website-name').focus();
+            },
+
+            closeWebsiteModal: function () {
+                const modal = document.getElementById('website-modal');
+                modal.classList.remove('active');
+                document.getElementById('website-form').reset();
+            },
+
+            updateCategorySelect: function () {
+                const categories = StorageManager.getCategories();
+                const categorySelect = document.getElementById('website-category');
+
+                // 移除"全部"选项
+                const filteredCategories = categories.filter(cat => cat !== '全部');
+
+                categorySelect.innerHTML = '';
+                filteredCategories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category;
+                    option.textContent = category;
+                    categorySelect.appendChild(option);
+                });
+
+                // 添加"新分类"选项
+                const newOption = document.createElement('option');
+                newOption.value = '__new__';
+                newOption.textContent = '+ 添加新分类';
+                categorySelect.appendChild(newOption);
+            },
+
+            saveWebsite: function () {
+                const form = document.getElementById('website-form');
+                const mode = form.dataset.mode;
+
+                const websiteData = {
+                    name: document.getElementById('website-name').value.trim(),
+                    url: document.getElementById('website-url').value.trim(),
+                    category: document.getElementById('website-category').value,
+                    icon: document.getElementById('website-icon').value.trim(),
+                    description: document.getElementById('website-description').value.trim()
+                };
+
+                // 验证数据
+                if (!websiteData.name || !websiteData.url || !websiteData.category || !websiteData.icon) {
+                    this.showMessage('请填写所有必填字段', 'warning');
+                    return;
+                }
+
+                // 检查URL格式
+                if (!this.isValidUrl(websiteData.url)) {
+                    this.showMessage('请输入有效的URL地址', 'warning');
+                    return;
+                }
+
+                // 检查是否要添加新分类
+                if (websiteData.category === '__new__') {
+                    const newCategory = prompt('请输入新分类名称:');
+                    if (!newCategory) {
+                        this.showMessage('分类名称不能为空', 'warning');
+                        return;
+                    }
+
+                    if (newCategory === '全部') {
+                        this.showMessage('不能使用"全部"作为分类名称', 'warning');
+                        return;
+                    }
+
+                    // 添加新分类
+                    StorageManager.addCategory(newCategory);
+                    websiteData.category = newCategory;
+
+                    // 更新分类选择
+                    this.updateCategorySelect();
+
+                    // 更新分类标签
+                    this.initWebsiteNavigation();
+                }
+
+                if (mode === 'edit') {
+                    websiteData.id = parseInt(form.dataset.id);
+                    StorageManager.updateWebsite(websiteData);
+                    this.showMessage('网站更新成功!', 'success');
+                } else {
+                    StorageManager.addWebsite(websiteData);
+                    this.showMessage('网站添加成功!', 'success');
+                }
+
+                // 重新渲染网站列表
+                const activeCategory = document.querySelector('.category-tab.active')?.dataset.category || '全部';
+                this.filterWebsitesByCategory(activeCategory);
+
+                // 关闭模态框
+                this.closeWebsiteModal();
+            },
+
+            deleteWebsite: function (id) {
+                if (!confirm('确定要删除这个网站吗？此操作不可撤销。')) {
+                    return;
+                }
+
+                StorageManager.deleteWebsite(id);
+
+                // 重新渲染网站列表
+                const activeCategory = document.querySelector('.category-tab.active')?.dataset.category || '全部';
+                this.filterWebsitesByCategory(activeCategory);
+
+                this.showMessage('网站已删除!', 'success');
+            },
+
+            showMessage: function (message, type = 'info') {
+                // 创建消息元素
+                const messageEl = document.createElement('div');
+                messageEl.className = `message message-${type}`;
+                messageEl.innerHTML = `
+                    <span>${message}</span>
+                    <button class="message-close">&times;</button>
+                `;
+
+                // 样式
+                messageEl.style.position = 'fixed';
+                messageEl.style.top = '20px';
+                messageEl.style.right = '20px';
+                messageEl.style.left = '20px';
+                messageEl.style.maxWidth = '400px';
+                messageEl.style.margin = '0 auto';
+                messageEl.style.padding = '15px 20px';
+                messageEl.style.borderRadius = 'var(--border-radius)';
+                messageEl.style.boxShadow = 'var(--shadow-lg)';
+                messageEl.style.zIndex = '1000';
+                messageEl.style.display = 'flex';
+                messageEl.style.justifyContent = 'space-between';
+                messageEl.style.alignItems = 'center';
+                messageEl.style.fontWeight = '600';
+                messageEl.style.animation = 'modalFadeIn 0.3s ease';
+
+                // 根据类型设置颜色
+                const colors = {
+                    success: { bg: '#c6f6d5', text: '#22543d', border: '#9ae6b4' },
+                    warning: { bg: '#feebc8', text: '#744210', border: '#fbd38d' },
+                    info: { bg: '#bee3f8', text: '#2c5282', border: '#90cdf4' }
+                };
+
+                const color = colors[type] || colors.info;
+                messageEl.style.backgroundColor = color.bg;
+                messageEl.style.color = color.text;
+                messageEl.style.border = `1px solid ${color.border}`;
+
+                // 关闭按钮
+                const closeBtn = messageEl.querySelector('.message-close');
+                closeBtn.style.background = 'none';
+                closeBtn.style.border = 'none';
+                closeBtn.style.fontSize = '1.5rem';
+                closeBtn.style.cursor = 'pointer';
+                closeBtn.style.color = 'inherit';
+                closeBtn.style.padding = '0';
+                closeBtn.style.width = '24px';
+                closeBtn.style.height = '24px';
+                closeBtn.style.display = 'flex';
+                closeBtn.style.alignItems = 'center';
+                closeBtn.style.justifyContent = 'center';
+
+                closeBtn.addEventListener('click', () => {
+                    messageEl.style.opacity = '0';
+                    messageEl.style.transform = 'translateY(-20px)';
+                    setTimeout(() => {
+                        if (messageEl.parentNode) {
+                            messageEl.parentNode.removeChild(messageEl);
+                        }
+                    }, 300);
+                });
+
+                // 添加到页面
+                document.body.appendChild(messageEl);
+
+                // 3秒后自动消失
+                setTimeout(() => {
+                    if (messageEl.parentNode) {
+                        closeBtn.click();
+                    }
+                }, 3000);
+            },
+
+            isValidUrl: function (string) {
+                try {
+                    new URL(string);
+                    return true;
+                } catch (_) {
+                    return false;
+                }
             }
+        };
 
-            // Save to localStorage
-            saveTodosToLocalStorage();
-            
-            // Update the UI
-            renderCalendar();
-            renderTodos();
-            
-            // Close the modal
-            closeModal();
-        }
+        // 初始化应用
+        document.addEventListener('DOMContentLoaded', () => {
+            PageManager.init();
 
-        // Toggle todo completion status
-        function toggleTodoCompletion(todoId) {
-            const todoIndex = todos.findIndex(t => t.id === todoId);
-            if (todoIndex !== -1) {
-                todos[todoIndex].completed = !todos[todoIndex].completed;
-                saveTodosToLocalStorage();
-                renderCalendar();
-                renderTodos();
-            }
-        }
+            // 添加键盘快捷键支持
+            document.addEventListener('keydown', (e) => {
+                // Ctrl/Cmd + K 聚焦搜索框
+                if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                    e.preventDefault();
+                    const searchInput = document.getElementById('search-input');
+                    if (searchInput) {
+                        searchInput.focus();
+                    }
+                }
 
-        // Edit a todo
-        function editTodo(todoId) {
-            openModal(todoId);
-        }
+                // Esc 键关闭模态框
+                if (e.key === 'Escape') {
+                    const modal = document.getElementById('website-modal');
+                    if (modal.classList.contains('active')) {
+                        PageManager.closeWebsiteModal();
+                    }
 
-        // Delete a todo
-        function deleteTodo(todoId) {
-            if (confirm('Are you sure you want to delete this task?')) {
-                todos = todos.filter(t => t.id !== todoId);
-                saveTodosToLocalStorage();
-                renderCalendar();
-                renderTodos();
-            }
-        }
+                    // 关闭自定义消息模态框
+                    const customModal = document.querySelector('.modal:not(#website-modal)');
+                    if (customModal && customModal.classList.contains('active')) {
+                        customModal.querySelector('.close-modal')?.click();
+                    }
+                }
 
-        // Save todos to localStorage
-        function saveTodosToLocalStorage() {
-            localStorage.setItem('todos', JSON.stringify(todos));
-        }
+                // Ctrl/Cmd + D 添加到收藏
+                if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
+                    e.preventDefault();
+                    PageManager.addToFavorites();
+                }
+            });
 
-        // Generate a unique ID
-        function generateId() {
-            return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
-        }
+            // 添加页面加载动画
+            document.body.style.opacity = '0';
+            document.body.style.transition = 'opacity 0.3s ease';
 
-        // Format date as YYYY-MM-DD
-        function formatDate(date) {
-            return date.toISOString().split('T')[0];
-        }
+            setTimeout(() => {
+                document.body.style.opacity = '1';
+            }, 50);
 
-        // Toggle dark mode
-        function toggleDarkMode() {
-            document.body.classList.toggle('dark-mode');
-            const isDarkMode = document.body.classList.contains('dark-mode');
-            
-            // Update icons
-            sunIcon.style.display = isDarkMode ? 'none' : 'block';
-            moonIcon.style.display = isDarkMode ? 'block' : 'none';
-            
-            // Save preference to localStorage
-            localStorage.setItem('darkMode', isDarkMode);
-        }
-
-        // Check for dark mode preference
-        function checkDarkModePreference() {
-            const isDarkMode = localStorage.getItem('darkMode') === 'true' || 
-                              (localStorage.getItem('darkMode') === null && 
-                               window.matchMedia('(prefers-color-scheme: dark)').matches);
-            
-            if (isDarkMode) {
-                document.body.classList.add('dark-mode');
-                sunIcon.style.display = 'none';
-                moonIcon.style.display = 'block';
-            }
-        }
-
-        // Initialize the app
-        initApp();
+            // 添加快捷键提示
+            setTimeout(() => {
+                PageManager.showMessage(
+                    '提示：按 Ctrl+K 快速聚焦搜索框，按 Ctrl+D 添加到收藏夹',
+                    'info'
+                );
+            }, 2000);
+        });
     </script>
 </body>
+
 </html>
